@@ -13,6 +13,8 @@ use App\Core\Responses\Error;
 use App\Core\Responses\Success;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use PhpParser\Node\Expr\Cast\Object_;
+use stdClass;
 
 class AuthController extends Controller
 {
@@ -125,10 +127,21 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token)
     {
-        return response()->json(new Success([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60
-        ]));
+        // return response()->json(new Success([
+        //     'access_token' => $token,
+        //     // 'token_type' => 'bearer',
+        //     // 'expires_in' => auth()->factory()->getTTL() * 60
+        // ]));
+
+        $data = new stdClass();
+        $data->jwt = $token;
+        $data->user = auth()->user();
+
+        return response()->json(new Success($data));
     }
 }
+
+// class AuthenticatedUser
+// {
+//     public $name;
+// }
