@@ -10,7 +10,7 @@ class Employee extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name', 'last_name', 'first_name', 'jmbg', 'number', 'banc_account', 'municipality_id'
+        'name', 'last_name', 'first_name', 'jmbg', 'number', 'banc_account', 'municipality_id', 'active'
     ];
 
     public function municipality()
@@ -21,5 +21,10 @@ class Employee extends Model
     public function defaultRelations()
     {
         return $this->belongsToMany('App\Relation\Relation');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User');
     }
 }

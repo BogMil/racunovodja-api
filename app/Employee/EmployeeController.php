@@ -5,6 +5,9 @@ namespace App\Employee;
 use App\Core\Responses\Success;
 use App\Employee\Employee;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Log;
+use App\Core\Responses\Error;
+use App\Core\Responses\Fail;
 use Illuminate\Http\Request;
 
 class EmployeeController extends Controller
@@ -23,6 +26,9 @@ class EmployeeController extends Controller
         $employees = Employee::where('user_id', auth()->user()->id)
             ->with('municipality')
             ->with('defaultRelations')
+            ->orderBy('active', 'desc')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
             ->get();
 
         return response()->json(new Success($employees));
@@ -36,10 +42,27 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        $employee = new Employee($request->all());
-        $employee->user_id = auth()->user()->id;
-        $employee->active = false;
-        $employee->save();
+        try {
+            $employee = new Employee($request->all());
+
+            $currentUserAlreadyHasEmployee = auth()->user()
+                ->employees
+                ->filter(function ($emp) use ($employee) {
+                    return $emp->number == $employee->number
+                        || $emp->jmbg == $employee->jmbg;
+                })
+                ->count() > 0;
+
+            if ($currentUserAlreadyHasEmployee)
+                return response()->json(Fail::withMessage('Zaposleni sa navedenim jmbg-om ili brojem je već unet u bazu'));
+
+            $employee->user_id = auth()->user()->id;
+            $employee->save();
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            Log::critical($e->getMessage());
+            return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
+        }
     }
 
     /**

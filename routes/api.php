@@ -35,3 +35,7 @@ Route::group([
 Route::resource('employee', 'App\Employee\EmployeeController')->except([
     'create'
 ]);;
+
+Route::resource('municipality', 'App\Municipality\MunicipalityController')->except([
+    'create'
+]);;
