@@ -110,6 +110,10 @@ class RelationController extends Controller
         try {
             $entity = Relation::findOrFail($id);
             if ($entity->user_id == auth()->user()->id) {
+
+                if ($entity->defaultRelations->count() >= 0)
+                    return $this->failWithMessage('Nije moguće obrisati relaciju jer je dodeljena kao podrazumevana nekom od zaposlenih.');
+
                 $entity->delete();
 
                 return $this->successfullResponse();
