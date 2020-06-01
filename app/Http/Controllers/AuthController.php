@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
-use App\User;
+use App\User\User;
 use App\Constants\ErrorCodes;
 use App\Core\Responses\Fail;
 use App\Core\Responses\Error;

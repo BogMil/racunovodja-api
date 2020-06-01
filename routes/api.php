@@ -32,6 +32,7 @@ Route::group([
     Route::post('me', 'App\Http\Controllers\AuthController@me');
 });
 
+
 Route::get('employee/{id}/availableRelations', 'App\Employee\EmployeeController@availableRelations');
 Route::post('employee/{id}/attachDefaultRelation', 'App\Employee\EmployeeController@addDefaultRelation');
 Route::delete('employee/{id}/removeDefaultRelation/{relationId}', 'App\Employee\EmployeeController@removeDefaultRelation');
@@ -43,3 +44,5 @@ Route::resource('municipality', 'App\Municipality\MunicipalityController')
 
 Route::resource('relation', 'App\Relation\RelationController')
     ->except(['create']);
+
+Route::post('user/getMissingJmbgs', 'App\User\UserController@getMissingJmbgs');
