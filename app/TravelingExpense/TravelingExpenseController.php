@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Employee;
+namespace App\TravelingExpense;
 
 use App\Core\Responses\Success;
 use App\Employee\Employee;
@@ -11,7 +11,7 @@ use App\Core\Responses\Fail;
 use App\Relation\Relation;
 use Illuminate\Http\Request;
 
-class EmployeeController extends Controller
+class TravelingExpenseController extends Controller
 {
     public function __construct()
     {
@@ -25,14 +25,11 @@ class EmployeeController extends Controller
     public function index()
     {
         try {
-            $employees = Employee::where('user_id', auth()->user()->id)
-                ->with('municipality')
-                ->with('defaultRelations')
-                ->orderBy('active', 'desc')
-                ->orderBy('last_name')
-                ->orderBy('first_name')
+            $te = TravelingExpense::where('user_id', auth()->user()->id)
+                ->orderBy('year', 'desc')
+                ->orderBy('month', 'desc')
                 ->get();
-            return response()->json(new Success($employees));
+            return response()->json(new Success($te));
         } catch (\Exception $e) {
             return $this->errorResponse('Greška', $e);
         }
@@ -47,37 +44,13 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         try {
-            $employee = new Employee($request->all());
-
-            $currentUserAlreadyHasEmployee = auth()->user()
-                ->employees
-                ->filter(function ($emp) use ($employee) {
-                    return $emp->number == $employee->number
-                        || $emp->jmbg == $employee->jmbg;
-                })
-                ->count() > 0;
-
-            if ($currentUserAlreadyHasEmployee)
-                return response()->json(Fail::withMessage('Zaposleni sa navedenim jmbg-om ili brojem je već unet u bazu'));
-
-            $employee->user_id = auth()->user()->id;
-            $employee->save();
+            $te = new TravelingExpense($request->all());
+            $te->user_id = auth()->user()->id;
+            $te->save();
             return $this->successfullResponse();
         } catch (\Exception $e) {
-            Log::critical($e->getMessage());
-            return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
+            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
     }
 
     /**

@@ -45,4 +45,7 @@ Route::resource('municipality', 'App\Municipality\MunicipalityController')
 Route::resource('relation', 'App\Relation\RelationController')
     ->except(['create']);
 
+Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseController')
+    ->except(['create']);
+
 Route::post('user/getMissingJmbgs', 'App\User\UserController@getMissingJmbgs');
