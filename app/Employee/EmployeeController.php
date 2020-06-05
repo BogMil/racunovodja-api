@@ -38,6 +38,23 @@ class EmployeeController extends Controller
         }
     }
 
+
+    public function getActiveOnes()
+    {
+        try {
+            $employees = Employee::where('user_id', auth()->user()->id)
+                ->with('municipality')
+                ->with('defaultRelations')
+                ->where('active', true)
+                ->orderBy('active', 'desc')
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->get();
+            return response()->json(new Success($employees));
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška', $e);
+        }
+    }
     /**
      * Store a newly created resource in storage.
      *
@@ -118,6 +135,8 @@ class EmployeeController extends Controller
 
                 $entity->banc_account = $request['banc_account'];
                 $entity->municipality_id = $request['municipality_id'];
+                if ($entity->municipality_id <= 0)
+                    $entity->municipality_id = null;
 
                 $entity->save();
 

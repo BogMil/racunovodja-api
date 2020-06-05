@@ -34,6 +34,7 @@ Route::group([
 
 
 Route::get('employee/{id}/availableRelations', 'App\Employee\EmployeeController@availableRelations');
+Route::get('employee/active', 'App\Employee\EmployeeController@getActiveOnes');
 Route::post('employee/{id}/attachDefaultRelation', 'App\Employee\EmployeeController@addDefaultRelation');
 Route::delete('employee/{id}/removeDefaultRelation/{relationId}', 'App\Employee\EmployeeController@removeDefaultRelation');
 Route::resource('employee', 'App\Employee\EmployeeController')
@@ -45,6 +46,7 @@ Route::resource('municipality', 'App\Municipality\MunicipalityController')
 Route::resource('relation', 'App\Relation\RelationController')
     ->except(['create']);
 
+Route::get('travelingExpense/{id}/details', 'App\TravelingExpense\TravelingExpenseController@details');
 Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseController')
     ->except(['create']);
 

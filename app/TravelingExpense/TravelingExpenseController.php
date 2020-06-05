@@ -9,7 +9,9 @@ use Illuminate\Support\Facades\Log;
 use App\Core\Responses\Error;
 use App\Core\Responses\Fail;
 use App\Relation\Relation;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TravelingExpenseController extends Controller
 {
@@ -35,6 +37,21 @@ class TravelingExpenseController extends Controller
         }
     }
 
+
+    public function details($id)
+    {
+        try {
+            $te = TravelingExpense::findOrFail($id);
+            if ($te->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate prava');
+
+            $x = $te->with('employeesWithRelation')->get();
+            return response()->json(new Success($x[0]));
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška', $e);
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -44,9 +61,32 @@ class TravelingExpenseController extends Controller
     public function store(Request $request)
     {
         try {
-            $te = new TravelingExpense($request->all());
-            $te->user_id = auth()->user()->id;
-            $te->save();
+
+            DB::transaction(function () use ($request) {
+
+                $te = new TravelingExpense($request->all());
+                $te->user_id = auth()->user()->id;
+                $te->save();
+
+                $chosenEmployees = $request['employees'];
+
+                foreach ($chosenEmployees as $employeeId) {
+
+                    $employee = Employee::findOrFail($employeeId);
+                    $tee = new TravelingExpenseEmployee();
+                    $tee->employee_id = $employeeId;
+                    $tee->traveling_expense_id = $te->id;
+                    $tee->save();
+
+                    foreach ($employee->defaultRelations as $relation) {
+                        $expenseRelation = new TravelingExpenseEmployeeRelation();
+                        $expenseRelation->relation_id = $relation->id;
+                        $expenseRelation->days = 0;
+                        $expenseRelation->traveling_expense_employee_id = $tee->id;
+                        $expenseRelation->save();
+                    }
+                }
+            });
             return $this->successfullResponse();
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);

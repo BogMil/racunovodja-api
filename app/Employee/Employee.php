@@ -27,4 +27,9 @@ class Employee extends Model
     {
         return $this->belongsTo('App\User\User');
     }
+
+    public function travelingExpenseEmployee()
+    {
+        return $this->hasMany('App\TravelingExpense\TravelingExpenseEmployee');
+    }
 }

@@ -17,4 +17,14 @@ class TravelingExpense extends Model
     {
         return $this->belongsTo('App\User\User');
     }
+
+    public function travelingExpenseEmployees()
+    {
+        return $this->hasMany('App\TravelingExpense\TravelingExpenseEmployee');
+    }
+
+    public function employeesWithRelation()
+    {
+        return $this->travelingExpenseEmployees()->with(['employee', 'relationsWithDays.relation']);
+    }
 }

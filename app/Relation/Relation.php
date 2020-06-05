@@ -23,4 +23,9 @@ class Relation extends Model
     {
         return $this->belongsTo('App\User\User');
     }
+
+    public function travelingExpenseRelations()
+    {
+        return $this->hasMany('App\TravelingExpense\TravelingExpenseEmployeeRelation');
+    }
 }
