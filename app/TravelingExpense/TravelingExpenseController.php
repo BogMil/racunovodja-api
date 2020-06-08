@@ -45,7 +45,8 @@ class TravelingExpenseController extends Controller
             if ($te->user_id != auth()->user()->id)
                 return $this->failWithMessage('Nemate prava');
 
-            $x = $te->with('employeesWithRelation')->get();
+            $x = TravelingExpense::where('id', $te->id)->with('employeesWithRelation')->get();
+
             return response()->json(new Success($x[0]));
         } catch (\Exception $e) {
             return $this->errorResponse('Greška', $e);
