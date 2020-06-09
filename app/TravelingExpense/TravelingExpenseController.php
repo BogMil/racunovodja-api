@@ -153,62 +153,87 @@ class TravelingExpenseController extends Controller
     public function destroy($id)
     {
         try {
-            $employee = Employee::findOrFail($id);
-            if ($employee->user_id != auth()->user()->id)
+            $entity = TravelingExpense::findOrFail($id);
+            if ($entity->user_id != auth()->user()->id)
                 return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
 
-            $employee->delete();
+            $entity->delete();
             return $this->successfullResponse();
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
     }
 
-    public function availableRelations($id)
+    public function getAvailableRelations($id)
     {
         try {
-            $employee = Employee::findOrFail($id);
-            if ($employee->user_id != auth()->user()->id)
+            $te = TravelingExpense::findOrFail($id);
+            if ($te->user_id != auth()->user()->id)
                 return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
 
-            $currentRelationsId = $employee->defaultRelations->pluck('id');
+            $currentEmployeeIds = $te->travelingExpenseEmployees->pluck('employee_id');
 
-            $availableRelations =
-                Relation::where('user_id', auth()->user()->id)
-                ->whereNotIn('id', $currentRelationsId)->get();
+            $availableEmployees =
+                Employee::where('user_id', auth()->user()->id)
+                ->where('active', true)
+                ->whereNotIn('id', $currentEmployeeIds)->get();
 
-            return $this->successfullResponse($availableRelations);
+            return $this->successfullResponse($availableEmployees);
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
     }
 
-    public function addDefaultRelation($employeeId, Request $request)
+    public function addEmployeeToTravelingExpense($travelingExpenseId, $employeeId)
     {
         try {
-            $relationId = $request['relationId'];
-            $employee = Employee::findOrFail($employeeId);
-            if ($employee->user_id != auth()->user()->id)
-                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
 
-            $employee->defaultRelations()->attach($relationId);
+            DB::transaction(function () use ($employeeId, $travelingExpenseId) {
+                $employee = Employee::findOrFail($employeeId);
+                if ($employee->user_id != auth()->user()->id)
+                    return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
 
+                $tee = new TravelingExpenseEmployee();
+                $tee->employee_id = $employeeId;
+                $tee->traveling_expense_id = $travelingExpenseId;
+                $tee->save();
+
+                foreach ($employee->defaultRelations as $relation) {
+                    $expenseRelation = new TravelingExpenseEmployeeRelation();
+                    $expenseRelation->relation_id = $relation->id;
+                    $expenseRelation->days = 0;
+                    $expenseRelation->traveling_expense_employee_id = $tee->id;
+                    $expenseRelation->save();
+                }
+            });
             return $this->successfullResponse();
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
     }
 
-    public function removeDefaultRelation($id, Request $request)
+    public function removeEmployeeWithRelations($employeeWithRelationsId)
     {
         try {
-            $relationId = $request['relationId'];
-
-            $employee = Employee::findOrFail($id);
-            if ($employee->user_id != auth()->user()->id)
+            $te = TravelingExpenseEmployee::findOrFail($employeeWithRelationsId);
+            if ($te->travelingExpense->user_id != auth()->user()->id)
                 return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
 
-            $employee->defaultRelations()->detach($relationId);
+            TravelingExpenseEmployee::destroy($employeeWithRelationsId);
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+        }
+    }
+
+    public function removeRelation($travelingExpenseRelationId)
+    {
+        try {
+            $te = TravelingExpenseEmployeeRelation::findOrFail($travelingExpenseRelationId);
+            if ($te->travelingExpenseEmployee->travelingExpense->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+
+            TravelingExpenseEmployeeRelation::destroy($travelingExpenseRelationId);
             return $this->successfullResponse();
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
