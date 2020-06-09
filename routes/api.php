@@ -47,10 +47,11 @@ Route::resource('relation', 'App\Relation\RelationController')
     ->except(['create']);
 
 Route::get('travelingExpense/{id}/details', 'App\TravelingExpense\TravelingExpenseController@details');
-Route::get('travelingExpense/{id}/availableEmployees', 'App\TravelingExpense\TravelingExpenseController@getAvailableRelations');
+Route::get('travelingExpense/{id}/availableEmployees', 'App\TravelingExpense\TravelingExpenseController@availableEmployees');
 Route::post('travelingExpense/{travelingExpenseId}/addEmployee/{employeeId}', 'App\TravelingExpense\TravelingExpenseController@addEmployeeToTravelingExpense');
 Route::delete('travelingExpense/relation/{travelingExpenseRelationId}', 'App\TravelingExpense\TravelingExpenseController@removeRelation');
 Route::delete('travelingExpense/employee/{removeEmployeeWithRelations}', 'App\TravelingExpense\TravelingExpenseController@removeEmployeeWithRelations');
+Route::get('travelingExpense/travelingExpenseEmployee/{travelingExpenseEmployeeId}/availableRelations', 'App\TravelingExpense\TravelingExpenseController@availableRelations');
 Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseController')
     ->except(['create']);
 

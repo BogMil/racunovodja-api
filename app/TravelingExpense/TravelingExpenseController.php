@@ -164,7 +164,7 @@ class TravelingExpenseController extends Controller
         }
     }
 
-    public function getAvailableRelations($id)
+    public function availableEmployees($id)
     {
         try {
             $te = TravelingExpense::findOrFail($id);
@@ -235,6 +235,25 @@ class TravelingExpenseController extends Controller
 
             TravelingExpenseEmployeeRelation::destroy($travelingExpenseRelationId);
             return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+        }
+    }
+
+    public function availableRelations($travelingExpenseEmployeeId)
+    {
+        try {
+            $tee = TravelingExpenseEmployee::findOrFail($travelingExpenseEmployeeId);
+            if ($tee->travelingExpense->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+
+            $currentRelationIds = $tee->relationsWithDays->pluck('relation_id');
+
+            $available =
+                Relation::where('user_id', auth()->user()->id)
+                ->whereNotIn('id', $currentRelationIds)->get();
+
+            return $this->successfullResponse($available);
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
