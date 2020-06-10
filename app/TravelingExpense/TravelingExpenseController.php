@@ -258,4 +258,40 @@ class TravelingExpenseController extends Controller
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
     }
+
+    public function addDaysToRelation($id, $days)
+    {
+        try {
+            $teer = TravelingExpenseEmployeeRelation::findOrFail($id);
+            if ($teer->travelingExpenseEmployee->travelingExpense->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+
+            $teer->days = $days;
+
+            $teer->save();
+
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+        }
+    }
+
+    public function addRelationWithDays($travelingExpenseEmployeeId, $relationId, $days)
+    {
+        try {
+            $tee = TravelingExpenseEmployee::findOrFail($travelingExpenseEmployeeId);
+            if ($tee->travelingExpense->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+
+            $teer = new TravelingExpenseEmployeeRelation();
+            $teer->relation_id = $relationId;
+            $teer->days = $days;
+            $teer->traveling_expense_employee_id = $tee->id;
+            $teer->save();
+
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+        }
+    }
 }
