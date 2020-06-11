@@ -58,3 +58,6 @@ Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseContro
     ->except(['create']);
 
 Route::post('user/getMissingJmbgs', 'App\User\UserController@getMissingJmbgs');
+
+
+Route::get('otherSettings', 'App\OtherSettings\OtherSettingsController@index');

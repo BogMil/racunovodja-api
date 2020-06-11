@@ -2,16 +2,16 @@
 
 namespace App\TravelingExpense;
 
+use App\Constants\OtherSettingsNames;
 use App\Core\Responses\Success;
 use App\Employee\Employee;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Log;
-use App\Core\Responses\Error;
-use App\Core\Responses\Fail;
+use App\NonTaxableItem\NonTaxableItemService;
 use App\Relation\Relation;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\OtherSettings\OtherSetting;
 
 class TravelingExpenseController extends Controller
 {
@@ -45,9 +45,12 @@ class TravelingExpenseController extends Controller
             if ($te->user_id != auth()->user()->id)
                 return $this->failWithMessage('Nemate prava');
 
-            $x = TravelingExpense::where('id', $te->id)->with('employeesWithRelation')->get();
+            $travelingExpenseDetails  = TravelingExpense::where('id', $te->id)->with('employeesWithRelation')->get()[0];
 
-            return response()->json(new Success($x[0]));
+            $nonTaxableItemService = new NonTaxableItemService();
+            $maxNonTaxedValue = $nonTaxableItemService->getTravelingExpenseValue($travelingExpenseDetails->month, $travelingExpenseDetails->year);
+            $travelingExpenseDetails->maxNonTaxedValue = $maxNonTaxedValue;
+            return response()->json(new Success($travelingExpenseDetails));
         } catch (\Exception $e) {
             return $this->errorResponse('Greška', $e);
         }
