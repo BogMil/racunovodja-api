@@ -60,4 +60,4 @@ Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseContro
 Route::post('user/getMissingJmbgs', 'App\User\UserController@getMissingJmbgs');
 
 
-Route::get('otherSettings', 'App\OtherSettings\OtherSettingsController@index');
+Route::get('settings', 'App\Settings\SettingsController@index');

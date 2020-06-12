@@ -1,12 +1,12 @@
 <?php
 
-namespace App\OtherSettings;
+namespace App\Settings;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OtherSetting extends Model
+class Setting extends Model
 {
-    protected $table = 'other_settings';
+    protected $table = 'settings';
     public $timestamps = false;
 
     protected $fillable = [

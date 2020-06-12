@@ -1,12 +1,12 @@
 <?php
 
-namespace App\OtherSettings;
+namespace App\Settings;
 
 use App\Constants\OtherSettingsNames;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class OtherSettingsController extends Controller
+class SettingsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,7 +16,7 @@ class OtherSettingsController extends Controller
     public function index()
     {
         try {
-            $data = OtherSetting::where('user_id', auth()->user()->id)
+            $data = Setting::where('user_id', auth()->user()->id)
                 ->orderBy('name')
                 ->get();
 

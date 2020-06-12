@@ -72,6 +72,8 @@ class TravelingExpenseController extends Controller
                 $te->user_id = auth()->user()->id;
                 $te->save();
 
+                $days = $this->countDays($te->year, $te->month, array(0, 6));
+
                 $chosenEmployees = $request['employees'];
 
                 foreach ($chosenEmployees as $employeeId) {
@@ -85,7 +87,7 @@ class TravelingExpenseController extends Controller
                     foreach ($employee->defaultRelations as $relation) {
                         $expenseRelation = new TravelingExpenseEmployeeRelation();
                         $expenseRelation->relation_id = $relation->id;
-                        $expenseRelation->days = 0;
+                        $expenseRelation->days = $days;
                         $expenseRelation->traveling_expense_employee_id = $tee->id;
                         $expenseRelation->save();
                     }
@@ -95,6 +97,19 @@ class TravelingExpenseController extends Controller
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
+    }
+
+    function countDays($year, $month, $ignore)
+    {
+        $count = 0;
+        $counter = mktime(0, 0, 0, $month, 1, $year);
+        while (date("n", $counter) == $month) {
+            if (in_array(date("w", $counter), $ignore) == false) {
+                $count++;
+            }
+            $counter = strtotime("+1 day", $counter);
+        }
+        return $count;
     }
 
     /**
