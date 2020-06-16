@@ -11,6 +11,12 @@ class OSPDVrstePrimanjaZaPeriod extends Model
 
     protected $fillable = [];
 
+    protected $casts = [
+        'preracun_na_bruto' => 'float',
+        'neoporezivo' => 'float',
+        'stopa' => 'float',
+    ];
+
     public function vrstaPrimanja()
     {
         return $this->belongsTo('App\OsnoviceIStopePorezaIDoprinosa\VrstaPrimanja');

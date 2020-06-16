@@ -69,6 +69,12 @@ class TravelingExpenseController extends Controller
     {
         try {
 
+            $teWithSameMonthAndYear = TravelingExpense::where('month', $request['month'])
+                ->where('year', $request['year'])
+                ->get();
+            if (count($teWithSameMonthAndYear) > 0)
+                return $this->failWithMessage('Već postoji obračun za odabrani mesec i godinu.');
+
             DB::transaction(function () use ($request) {
 
                 $te = new TravelingExpense($request->all());
