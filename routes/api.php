@@ -54,6 +54,8 @@ Route::delete('travelingExpense/employee/{removeEmployeeWithRelations}', 'App\Tr
 Route::get('travelingExpense/travelingExpenseEmployee/{travelingExpenseEmployeeId}/availableRelations', 'App\TravelingExpense\TravelingExpenseController@availableRelations');
 Route::post('travelingExpense/employeeRelation/{id}/addDays/{days}', 'App\TravelingExpense\TravelingExpenseController@addDaysToRelation');
 Route::post('travelingExpense/employee/{travelingExpenseEmployeeId}/addRelationWithDays/{relationId}/{days}', 'App\TravelingExpense\TravelingExpenseController@addRelationWithDays');
+
+Route::post('travelingExpense/{id}/lock', 'App\TravelingExpense\TravelingExpenseController@lock');
 Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseController')
     ->except(['create']);
 

@@ -3,10 +3,11 @@
 namespace App\TravelingExpense;
 
 use App\Constants\OtherSettingsNames;
+use App\Constants\Statuses;
 use App\Core\Responses\Success;
 use App\Employee\Employee;
 use App\Http\Controllers\Controller;
-use App\NonTaxableItem\NonTaxableItemService;
+use App\OsnoviceIStopePorezaIDoprinosa\OSPDVrstePrimanjaService;
 use App\Relation\Relation;
 use Exception;
 use Illuminate\Http\Request;
@@ -47,9 +48,11 @@ class TravelingExpenseController extends Controller
 
             $travelingExpenseDetails  = TravelingExpense::where('id', $te->id)->with('employeesWithRelation')->get()[0];
 
-            $nonTaxableItemService = new NonTaxableItemService();
-            $maxNonTaxedValue = $nonTaxableItemService->getTravelingExpenseValue($travelingExpenseDetails->month, $travelingExpenseDetails->year);
-            $travelingExpenseDetails->maxNonTaxedValue = $maxNonTaxedValue;
+            $OSPDVrstePrimanjaService = new OSPDVrstePrimanjaService();
+            $ospd = $OSPDVrstePrimanjaService->naknadaTroskovaZaDolazakIOdlazakSaRada($travelingExpenseDetails->month, $travelingExpenseDetails->year);
+            $travelingExpenseDetails->maxNonTaxedValue = $ospd->neoporezivo;
+            $travelingExpenseDetails->preracun_na_bruto = $ospd->preracun_na_bruto;
+            $travelingExpenseDetails->stopa = $ospd->stopa;
             return response()->json(new Success($travelingExpenseDetails));
         } catch (\Exception $e) {
             return $this->errorResponse('Greška', $e);
@@ -310,6 +313,26 @@ class TravelingExpenseController extends Controller
             return $this->successfullResponse();
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+        }
+    }
+
+
+    public function lock($id)
+    {
+        try {
+            $te = TravelingExpense::findOrFail($id);
+            if ($te->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate prava');
+
+            $te->status = Statuses::ZAVRSEN;
+            foreach ($te->travelingExpenseEmployees as $employee) {
+                if (count($employee->relationsWithDays) == 0)
+                    $employee->delete();
+            }
+            $te->save();
+            return response()->json(new Success());
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška', $e);
         }
     }
 }
