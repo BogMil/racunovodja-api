@@ -10,6 +10,6 @@ class Municipality extends Model
     public $timestamps = false;
     public function employees()
     {
-        return $this->hasMany('App\Comment');
+        return $this->hasMany('App\Employee\Employee');
     }
 }

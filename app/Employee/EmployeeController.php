@@ -132,6 +132,7 @@ class EmployeeController extends Controller
                 $entity->last_name = $request['last_name'];
                 $entity->first_name = $request['first_name'];
                 $entity->active = $request['active'];
+                $entity->email = $request['email'];
 
                 $entity->banc_account = $request['banc_account'];
                 $entity->municipality_id = $request['municipality_id'];

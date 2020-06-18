@@ -10,7 +10,7 @@ class Employee extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name', 'last_name', 'first_name', 'jmbg', 'number', 'banc_account', 'municipality_id', 'active'
+        'name', 'last_name', 'first_name', 'jmbg', 'number', 'banc_account', 'municipality_id', 'active','email'
     ];
 
     public function municipality()
