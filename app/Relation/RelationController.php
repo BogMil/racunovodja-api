@@ -18,6 +18,7 @@ class RelationController extends Controller
         try {
             $data = Relation::where('user_id', auth()->user()->id)
                 ->orderBy('name')
+                ->with('lokacija')
                 ->get();
 
             return $this->successfullResponse($data);
@@ -91,6 +92,7 @@ class RelationController extends Controller
 
             $entity->name = $request['name'];
             $entity->price = $request['price'];
+            $entity->lokacija_id = $request['lokacija_id'];
             $entity->save();
 
             return $this->successfullResponse();

@@ -59,6 +59,9 @@ Route::post('travelingExpense/{id}/lock', 'App\TravelingExpense\TravelingExpense
 Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseController')
     ->except(['create']);
 
+Route::resource('lokacija', 'App\Lokacija\LokacijaController')
+    ->except(['create']);
+
 Route::post('user/getMissingJmbgs', 'App\User\UserController@getMissingJmbgs');
 
 
