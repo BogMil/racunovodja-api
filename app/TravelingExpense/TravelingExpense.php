@@ -25,6 +25,6 @@ class TravelingExpense extends Model
 
     public function employeesWithRelation()
     {
-        return $this->travelingExpenseEmployees()->with(['employee', 'employee.municipality', 'relationsWithDays.relation']);
+        return $this->travelingExpenseEmployees()->with(['employee', 'employee.municipality', 'relationsWithDays.relation','relationsWithDays.relation.lokacija']);
     }
 }

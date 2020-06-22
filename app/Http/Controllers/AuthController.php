@@ -14,6 +14,9 @@ use App\Core\Responses\Success;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use PhpParser\Node\Expr\Cast\Object_;
+use Illuminate\Support\Facades\DB;
+use App\UserDetails\UserDetails;
+use App\Lokacija\Lokacija;
 use stdClass;
 
 class AuthController extends Controller
@@ -35,24 +38,42 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $modifier = '+6 month';
-        $trialPeriod = '6 meseci';
-        $user = new User($request->all());
-        $user->password = Hash::make($request['password']);
-        $user->valid_until = $this->getPromoPeriodEndDate($modifier);
+        return DB::transaction(function () use ($request) {
+            try {
+                $modifier = '+6 month';
+                $trialPeriod = '6 meseci';
+                $user = new User($request->all());
+                $user->password = Hash::make($request['password']);
+                $user->valid_until = $this->getPromoPeriodEndDate($modifier);
+                $user->save();
 
-        try {
-            $user->save();
-            return response()->json(new Success($trialPeriod));
-        } catch (\Exception $e) {
-            if ($e->getCode() == ErrorCodes::UNIQUE_INDEX) {
-                Log::info('EMAIL ADRESA ZAUZETA : ' . $e->getMessage());
-                return response()->json(Fail::withMessage('Email adresa je zauzeta!'));
+                $userDetails=new UserDetails();
+                $userDetails->poreski_identifikacioni_broj='';
+                $userDetails->maticni_broj='';
+                $userDetails->user_id=$user->id;
+                $userDetails->opstina_id=null;
+                $userDetails->telefon='';
+                $userDetails->ulica_i_broj='';
+                $userDetails->email='';
+                $userDetails->naziv_skole='';
+                $userDetails->save();
+
+                $lokacija=new Lokacija();
+                $lokacija->user_id = $user->id;
+                $lokacija->naziv = 'Škola';
+                $lokacija->save();
+
+                return response()->json(new Success($trialPeriod));
+            } catch (\Exception $e) {
+                if ($e->getCode() == ErrorCodes::UNIQUE_INDEX) {
+                    Log::info('EMAIL ADRESA ZAUZETA : ' . $e->getMessage());
+                    return response()->json(Fail::withMessage('Email adresa je zauzeta!'));
+                }
+
+                Log::critical($e->getMessage());
+                return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
             }
-
-            Log::critical($e->getMessage());
-            return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
-        }
+        });
     }
 
     private function getPromoPeriodEndDate($modifier)
