@@ -43,6 +43,11 @@ class TravelingExpenseController extends Controller
     {
         try {
             $te = TravelingExpense::findOrFail($id);
+            if($te->status==Statuses::ZAVRSEN){
+                $details=json_decode ($te->details);
+                return $this->successfullResponse($details);
+            }
+
             if ($te->user_id != auth()->user()->id)
                 return $this->failWithMessage('Nemate prava');
 
@@ -54,6 +59,40 @@ class TravelingExpenseController extends Controller
             $travelingExpenseDetails->preracun_na_bruto = $ospd->preracun_na_bruto;
             $travelingExpenseDetails->stopa = $ospd->stopa;
             return response()->json(new Success($travelingExpenseDetails));
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška', $e);
+        }
+    }
+
+    public function lock($id)
+    {
+        try {
+            DB::transaction(function () use ($id) {
+                $te = TravelingExpense::findOrFail($id);
+                if ($te->user_id != auth()->user()->id)
+                    return $this->failWithMessage('Nemate prava');
+
+                $te->status = Statuses::ZAVRSEN;
+                foreach ($te->travelingExpenseEmployees as $employee) {
+                    if (count($employee->relationsWithDays) == 0)
+                        $employee->delete();
+                }
+
+                $te->save();
+                $te = TravelingExpense::findOrFail($id);
+
+                $travelingExpenseDetails  = TravelingExpense::where('id', $te->id)->with('employeesWithRelation')->get()[0];
+                $OSPDVrstePrimanjaService = new OSPDVrstePrimanjaService();
+                $ospd = $OSPDVrstePrimanjaService->naknadaTroskovaZaDolazakIOdlazakSaRada($travelingExpenseDetails->month, $travelingExpenseDetails->year);
+                $travelingExpenseDetails->maxNonTaxedValue = $ospd->neoporezivo;
+                $travelingExpenseDetails->preracun_na_bruto = $ospd->preracun_na_bruto;
+                $travelingExpenseDetails->stopa = $ospd->stopa;
+
+                $te->details=$travelingExpenseDetails;
+                $te->save();
+
+            });
+            return response()->json(new Success());
         } catch (\Exception $e) {
             return $this->errorResponse('Greška', $e);
         }
@@ -323,22 +362,5 @@ class TravelingExpenseController extends Controller
     }
 
 
-    public function lock($id)
-    {
-        try {
-            $te = TravelingExpense::findOrFail($id);
-            if ($te->user_id != auth()->user()->id)
-                return $this->failWithMessage('Nemate prava');
 
-            $te->status = Statuses::ZAVRSEN;
-            foreach ($te->travelingExpenseEmployees as $employee) {
-                if (count($employee->relationsWithDays) == 0)
-                    $employee->delete();
-            }
-            $te->save();
-            return response()->json(new Success());
-        } catch (\Exception $e) {
-            return $this->errorResponse('Greška', $e);
-        }
-    }
 }
