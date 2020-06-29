@@ -56,17 +56,6 @@ class RelationController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -113,7 +102,7 @@ class RelationController extends Controller
             $entity = Relation::findOrFail($id);
             if ($entity->user_id == auth()->user()->id) {
 
-                if ($entity->defaultRelations->count() >= 0)
+                if ($entity->defaultRelations->count() > 0)
                     return $this->failWithMessage('Nije moguće obrisati relaciju jer je dodeljena kao podrazumevana nekom od zaposlenih.');
 
                 $entity->delete();

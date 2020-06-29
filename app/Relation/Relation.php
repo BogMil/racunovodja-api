@@ -10,7 +10,7 @@ class Relation extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'name', 'price'
+        'name', 'price','lokacija_id'
     ];
 
     public function defaultRelations()
