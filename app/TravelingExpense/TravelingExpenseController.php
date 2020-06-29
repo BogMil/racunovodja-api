@@ -317,6 +317,7 @@ class TravelingExpenseController extends Controller
 
             $available =
                 Relation::where('user_id', auth()->user()->id)
+                ->with('lokacija')
                 ->whereNotIn('id', $currentRelationIds)->get();
 
             return $this->successfullResponse($available);

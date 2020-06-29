@@ -27,7 +27,7 @@ class EmployeeController extends Controller
         try {
             $employees = Employee::where('user_id', auth()->user()->id)
                 ->with('municipality')
-                ->with('defaultRelations')
+                ->with('defaultRelations.lokacija')
                 ->orderBy('active', 'desc')
                 ->orderBy('last_name')
                 ->orderBy('first_name')
@@ -181,6 +181,7 @@ class EmployeeController extends Controller
 
             $availableRelations =
                 Relation::where('user_id', auth()->user()->id)
+                ->with('lokacija')
                 ->whereNotIn('id', $currentRelationsId)->get();
 
             return $this->successfullResponse($availableRelations);
