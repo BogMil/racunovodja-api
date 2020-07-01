@@ -42,6 +42,9 @@ class UserDetailsController extends Controller
             $entity->telefon = $request['telefon'];
             $entity->ulica_i_broj = $request['ulica_i_broj'];
             $entity->email = $request['email'];
+            $entity->bankovni_racun=$request['bankovni_racun'];
+            $entity->mesto=$request['mesto'];
+
             $entity->save();
 
             return $this->successfullResponse();
