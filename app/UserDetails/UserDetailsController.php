@@ -44,6 +44,8 @@ class UserDetailsController extends Controller
             $entity->email = $request['email'];
             $entity->bankovni_racun=$request['bankovni_racun'];
             $entity->mesto=$request['mesto'];
+            $entity->tip_skole=$request['tip_skole'];
+            $entity->sifra_skole=$request['sifra_skole'];
 
             $entity->save();
 

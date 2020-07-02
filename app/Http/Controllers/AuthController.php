@@ -58,6 +58,8 @@ class AuthController extends Controller
                 $userDetails->naziv_skole='';
                 $userDetails->bankovni_racun='';
                 $userDetails->mesto='';
+                $userDetails->tip_skole=null;
+                $userDetails->sifra_skole='';
                 $userDetails->save();
 
                 $lokacija=new Lokacija();
