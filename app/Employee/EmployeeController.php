@@ -55,12 +55,7 @@ class EmployeeController extends Controller
             return $this->errorResponse('Greška', $e);
         }
     }
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+
     public function store(Request $request)
     {
         try {
@@ -78,6 +73,8 @@ class EmployeeController extends Controller
                 return response()->json(Fail::withMessage('Zaposleni sa navedenim jmbg-om ili brojem je već unet u bazu'));
 
             $employee->user_id = auth()->user()->id;
+            if($employee->municipality_id<0)
+                $employee->municipality_id=null;
             $employee->save();
             return $this->successfullResponse();
         } catch (\Exception $e) {
