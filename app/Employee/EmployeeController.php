@@ -17,11 +17,7 @@ class EmployeeController extends Controller
     {
         $this->middleware('auth:api');
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index()
     {
         try {
@@ -218,4 +214,22 @@ class EmployeeController extends Controller
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
         }
     }
+
+    public function updateEmail($jmbg, Request $request)
+    {
+        try {
+            $email = $request['email'];
+
+            $employee = Employee::where('jmbg',$jmbg)->firstOrFail();
+            if ($employee->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+
+            $employee->email=$email;
+            $employee->save();
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+        }
+    }
+
 }

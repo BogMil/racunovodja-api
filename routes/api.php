@@ -37,6 +37,7 @@ Route::get('employee/{id}/availableRelations', 'App\Employee\EmployeeController@
 Route::get('employee/active', 'App\Employee\EmployeeController@getActiveOnes');
 Route::post('employee/{id}/attachDefaultRelation', 'App\Employee\EmployeeController@addDefaultRelation');
 Route::delete('employee/{id}/removeDefaultRelation/{relationId}', 'App\Employee\EmployeeController@removeDefaultRelation');
+Route::post('employee/{jmbg}/updateEmail', 'App\Employee\EmployeeController@updateEmail');
 Route::resource('employee', 'App\Employee\EmployeeController')
     ->except(['create']);;
 
