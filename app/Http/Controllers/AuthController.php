@@ -60,6 +60,8 @@ class AuthController extends Controller
                 $userDetails->mesto='';
                 $userDetails->tip_skole=null;
                 $userDetails->sifra_skole='';
+                $userDetails->email_za_slanje='';
+                $userDetails->password_email_za_slanje='';
                 $userDetails->save();
 
                 $lokacija=new Lokacija();

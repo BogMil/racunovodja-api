@@ -69,3 +69,5 @@ Route::post('user/getMissingEmployeeNumbers', 'App\User\UserController@getMissin
 
 Route::get('userDetails', 'App\UserDetails\UserDetailsController@index');
 Route::put('userDetails', 'App\UserDetails\UserDetailsController@update');
+
+Route::post('slanjeMailova/log', 'App\SlanjeMailovaLog\SlanjeMailovaLogController@log');

@@ -32,7 +32,20 @@ class Controller extends BaseController
 
     protected function errorResponse($message, $e)
     {
-        Log::critical($e->getMessage());
-        return response()->json(new Error($message));
+        try{
+            $m="-----------USER-----------\n";
+            $m=$m. auth()->user()->email."\n";
+            $m=$m."-----------USER ERROR-----------\n";
+            $m=$m.$message."\n";
+            $m=$m."-----------EXCEPTION-----------\n";
+            $m=$m.$e->getMessage()."\n";
+
+            Log::critical($m);
+            return response()->json(new Error($message));
+        }catch(\Exception $ex){
+            Log::critical($e->getMessage());
+            return response()->json(new Error($message));
+        }
+
     }
 }
