@@ -63,6 +63,7 @@ Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseContro
 Route::resource('lokacija', 'App\Lokacija\LokacijaController')
     ->except(['create']);
 
+Route::get('dobavljac/{id}/details', 'App\Dobavljac\DobavljacController@details');
 Route::resource('dobavljac', 'App\Dobavljac\DobavljacController')
     ->except(['create']);
 

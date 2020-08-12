@@ -10,7 +10,7 @@ class Dobavljac extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'naziv','pib','ziro_racun','adresa'
+        'naziv','pib','ziro_racun','adresa','kontakt','email'
     ];
 
     public function user()

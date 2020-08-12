@@ -30,6 +30,18 @@ class DobavljacController extends Controller
         }
     }
 
+    public function details($id)
+    {
+        try {
+            $entity = Dobavljac::where('user_id', auth()->user()->id)
+                ->where('id',$id)
+                ->firstOrFail();
+            return response()->json(new Success($entity));
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška', $e);
+        }
+    }
+
     public function store(Request $request)
     {
         try {
@@ -56,11 +68,27 @@ class DobavljacController extends Controller
             $entity->naziv = $request['naziv'];
             $entity->pib = $request['pib'];
             $entity->ziro_racun = $request['ziro_racun'];
+            $entity->kontakt = $request['kontakt'];
+            $entity->email = $request['email'];
             $entity->save();
 
             return $this->successfullResponse();
         } catch (\Exception $e) {
             return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $entity = Dobavljac::findOrFail($id);
+            if ($entity->user_id != auth()->user()->id)
+                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+
+            $entity->delete();
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->errorResponse('Greška prilikom brisanja', $e);
         }
     }
 }
