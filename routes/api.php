@@ -63,6 +63,9 @@ Route::resource('travelingExpense', 'App\TravelingExpense\TravelingExpenseContro
 Route::resource('lokacija', 'App\Lokacija\LokacijaController')
     ->except(['create']);
 
+Route::resource('dobavljac', 'App\Dobavljac\DobavljacController')
+    ->except(['create']);
+
 Route::post('user/getMissingJmbgs', 'App\User\UserController@getMissingJmbgs');
 Route::post('user/getMissingEmployeeNumbers', 'App\User\UserController@getMissingEmployeeNumbers');
 
