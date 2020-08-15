@@ -2,6 +2,8 @@
 
 namespace App\Core\Responses;
 
+use App\Constants\ResponseStatuses;
+
 class Success
 {
     function __construct($data = null)
@@ -9,6 +11,6 @@ class Success
         $this->data = $data;
     }
 
-    public $status = "success";
+    public $status = ResponseStatuses::SUCCESS;
     public $data;
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\ResponseStatuses;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
@@ -10,6 +11,8 @@ use App\Core\Responses\Success;
 use App\Core\Responses\Fail;
 use App\Core\Responses\Error;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Response;
+use stdClass;
 
 class Controller extends BaseController
 {
@@ -32,20 +35,36 @@ class Controller extends BaseController
 
     protected function errorResponse($message, $e)
     {
-        try{
-            $m="-----------USER-----------\n";
-            $m=$m. auth()->user()->email."\n";
-            $m=$m."-----------USER ERROR-----------\n";
-            $m=$m.$message."\n";
-            $m=$m."-----------EXCEPTION-----------\n";
-            $m=$m.$e->getMessage()."\n";
+        try {
+            $m = "-----------USER-----------\n";
+            $m = $m . auth()->user()->email . "\n";
+            $m = $m . "-----------USER ERROR-----------\n";
+            $m = $m . $message . "\n";
+            $m = $m . "-----------EXCEPTION-----------\n";
+            $m = $m . $e->getMessage() . "\n";
 
             Log::critical($m);
             return response()->json(new Error($message));
-        }catch(\Exception $ex){
+        } catch (\Exception $ex) {
             Log::critical($e->getMessage());
             return response()->json(new Error($message));
         }
+    }
 
+    protected function failWithValidationErrors($errors)
+    {
+        $errorMessages = [];
+        foreach ($errors->getMessages() as $message) {
+            $errorMessages = array_merge(
+                $errorMessages,
+                array_values($message)
+            );
+        }
+
+        $errors = [
+            'errors' => $errorMessages,
+        ];
+
+        return Response::json($errors, 400);
     }
 }

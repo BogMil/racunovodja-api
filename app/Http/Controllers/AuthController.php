@@ -11,83 +11,92 @@ use App\Constants\ErrorCodes;
 use App\Core\Responses\Fail;
 use App\Core\Responses\Error;
 use App\Core\Responses\Success;
+use App\Korisnik;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use PhpParser\Node\Expr\Cast\Object_;
 use Illuminate\Support\Facades\DB;
 use App\UserDetails\UserDetails;
 use App\Lokacija\Lokacija;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 use stdClass;
 
 class AuthController extends Controller
 {
-    /**
-     * Create a new AuthController instance.
-     *
-     * @return void
-     */
+    private $validationRules = [
+        'naziv' => 'bail|required',
+        'ulica_i_broj' => 'bail|required',
+        'grad' => 'bail|required',
+        'email' => 'bail|required|unique:korisnici|email',
+        'password' => 'bail|required|confirmed',
+    ];
+
     public function __construct()
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
     }
 
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function register(Request $request)
     {
-        return DB::transaction(function () use ($request) {
-            try {
-                $modifier = '+6 month';
-                $trialPeriod = '6 meseci';
-                $user = new User($request->all());
-                $user->password = Hash::make($request['password']);
-                $user->valid_until = $this->getPromoPeriodEndDate($modifier);
-                $user->save();
+        $validator = Validator::make($request->all(), $this->validationRules);
+        if ($validator->fails()) {
+            return $this->failWithValidationErrors($validator->errors());
+        }
 
-                $userDetails=new UserDetails();
-                $userDetails->poreski_identifikacioni_broj='';
-                $userDetails->maticni_broj='';
-                $userDetails->user_id=$user->id;
-                $userDetails->opstina_id=null;
-                $userDetails->telefon='';
-                $userDetails->ulica_i_broj='';
-                $userDetails->email='';
-                $userDetails->naziv_skole='';
-                $userDetails->bankovni_racun='';
-                $userDetails->mesto='';
-                $userDetails->tip_skole=null;
-                $userDetails->sifra_skole='';
-                $userDetails->email_za_slanje='';
-                $userDetails->password_email_za_slanje='';
-                $userDetails->save();
+        return DB::transaction(function () use ($request, $validator) {
+            $dbFields = $validator->validated();
+            $dbFields['password'] = Hash::make($dbFields['password']);
+            $korisnik = new Korisnik($dbFields);
+            $korisnik->validan_do = Carbon::now()
+                ->addYears(1)
+                ->addDays(1)
+                ->format('Y-m-d h:i:s');
+            $korisnik->save();
 
-                $lokacija=new Lokacija();
-                $lokacija->user_id = $user->id;
-                $lokacija->naziv = 'Škola';
-                $lokacija->save();
+            return $this->successfullResponse();
 
-                return response()->json(new Success($trialPeriod));
-            } catch (\Exception $e) {
-                if ($e->getCode() == ErrorCodes::UNIQUE_INDEX) {
-                    Log::info('EMAIL ADRESA ZAUZETA : ' . $e->getMessage());
-                    return response()->json(Fail::withMessage('Email adresa je zauzeta!'));
-                }
+            // try {
+            //     $modifier = '+6 month';
+            //     $trialPeriod = '6 meseci';
+            //     $user = new User($request->all());
+            //     $user->password = Hash::make($request['password']);
+            //     $user->valid_until = $this->getPromoPeriodEndDate($modifier);
+            //     $user->save();
 
-                Log::critical($e->getMessage());
-                return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
-            }
+            //     $userDetails=new UserDetails();
+            //     $userDetails->poreski_identifikacioni_broj='';
+            //     $userDetails->maticni_broj='';
+            //     $userDetails->user_id=$user->id;
+            //     $userDetails->opstina_id=null;
+            //     $userDetails->telefon='';
+            //     $userDetails->ulica_i_broj='';
+            //     $userDetails->email='';
+            //     $userDetails->naziv_skole='';
+            //     $userDetails->bankovni_racun='';
+            //     $userDetails->mesto='';
+            //     $userDetails->tip_skole=null;
+            //     $userDetails->sifra_skole='';
+            //     $userDetails->email_za_slanje='';
+            //     $userDetails->password_email_za_slanje='';
+            //     $userDetails->save();
+
+            //     $lokacija=new Lokacija();
+            //     $lokacija->user_id = $user->id;
+            //     $lokacija->naziv = 'Škola';
+            //     $lokacija->save();
+
+            //     return response()->json(new Success($trialPeriod));
+            // } catch (\Exception $e) {
+            //     if ($e->getCode() == ErrorCodes::UNIQUE_INDEX) {
+            //         Log::info('EMAIL ADRESA ZAUZETA : ' . $e->getMessage());
+            //         return response()->json(Fail::withMessage('Email adresa je zauzeta!'));
+            //     }
+
+            //     Log::critical($e->getMessage());
+            //     return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
+            // }
         });
-    }
-
-    private function getPromoPeriodEndDate($modifier)
-    {
-        $date = new \DateTime('now');
-        $date->modify($modifier);
-        $date = $date->format('Y-m-d h:i:s');
-        return $date;
     }
 
     /**
@@ -99,8 +108,10 @@ class AuthController extends Controller
     {
         $credentials = request(['email', 'password']);
         try {
-            if (!$token = auth()->attempt($credentials)) {
-                return response()->json(Fail::withMessage("Pogrešni kredencijali"));
+            if (!($token = auth()->attempt($credentials))) {
+                return response()->json(
+                    Fail::withMessage("Pogrešni kredencijali")
+                );
             }
             return $this->respondWithToken($token);
         } catch (\Exception $e) {
