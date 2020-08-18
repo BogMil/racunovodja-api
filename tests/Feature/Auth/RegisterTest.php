@@ -4,7 +4,9 @@ namespace Tests\Feature\Auth;
 
 use App\Constants\ResponseStatuses;
 use App\Constants\Statuses;
+use App\DetaljiKorisnika;
 use App\Korisnik;
+use App\LokacijaSkole;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,6 +35,7 @@ class RegisterTest extends TestCase
             'email' => 'email@adresa.com',
             'password' => 'lozinka',
             'password_confirmation' => 'lozinka',
+            'telefon' => '123456789',
         ];
     }
 
@@ -137,7 +140,7 @@ class RegisterTest extends TestCase
     /** @test */
     public function emailMoraBitiJedinstven()
     {
-        $firstResponse = $this->post($this->url, $this->requestData);
+        $this->post($this->url, $this->requestData);
         $secondResponse = $this->post($this->url, $this->requestData);
 
         $responseJson = $secondResponse->decodeResponseJson();
@@ -167,6 +170,43 @@ class RegisterTest extends TestCase
         $this->assertEquals(
             $this->getErrorMessage(Lang::get('validation.email'), 'email'),
             $responseJson['errors'][0]
+        );
+    }
+
+    /** @test */
+    public function telefonJeObaveznoPolje()
+    {
+        $this->requestData['telefon'] = '';
+        $getResponse = function () {
+            return $this->post($this->url, $this->requestData);
+        };
+
+        $this->poljeJeObavezno('telefon', $getResponse, Korisnik::class);
+    }
+
+    /** @test */
+    public function detaljiKorisnikaSuKreiraniPrilikomRegistracije()
+    {
+        $response = $this->post($this->url, $this->requestData);
+
+        $response->assertStatus(200);
+        $this->assertCount(1, DetaljiKorisnika::all());
+        $this->assertEquals(
+            Korisnik::first()->id,
+            DetaljiKorisnika::first()->id_korisnika
+        );
+    }
+
+    /** @test */
+    public function podrazumevanaLokacijaSkoleJeKreiranaPrilikomRegistracije()
+    {
+        $response = $this->post($this->url, $this->requestData);
+
+        $response->assertStatus(200);
+        $this->assertCount(1, LokacijaSkole::all());
+        $this->assertEquals(
+            Korisnik::first()->id,
+            LokacijaSkole::first()->id_korisnika
         );
     }
 

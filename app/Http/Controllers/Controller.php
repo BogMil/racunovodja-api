@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\DefaultValues;
 use App\Constants\ResponseStatuses;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -51,6 +52,24 @@ class Controller extends BaseController
         }
     }
 
+    protected function systemErrorResponse($e)
+    {
+        try {
+            $m = "-----------USER-----------\n";
+            $m = $m . auth()->user()->email . "\n";
+            $m = $m . "-----------USER ERROR-----------\n";
+            $m = $m . DefaultValues::SISTEMSKA_GRESKA . "\n";
+            $m = $m . "-----------EXCEPTION-----------\n";
+            $m = $m . $e->getMessage() . "\n";
+
+            Log::critical($m);
+            return response()->json(new Error(DefaultValues::SISTEMSKA_GRESKA));
+        } catch (\Exception $ex) {
+            Log::critical($e->getMessage());
+            return response()->json(new Error(DefaultValues::SISTEMSKA_GRESKA));
+        }
+    }
+
     protected function failWithValidationErrors($errors)
     {
         $errorMessages = [];
@@ -66,5 +85,14 @@ class Controller extends BaseController
         ];
 
         return Response::json($errors, 400);
+    }
+
+    protected function try($callback)
+    {
+        try {
+            return $callback();
+        } catch (\Exception $e) {
+            return $this->systemErrorResponse($e);
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Constants\DefaultValues;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -11,6 +12,7 @@ use App\Constants\ErrorCodes;
 use App\Core\Responses\Fail;
 use App\Core\Responses\Error;
 use App\Core\Responses\Success;
+use App\DetaljiKorisnika;
 use App\Korisnik;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -18,6 +20,8 @@ use PhpParser\Node\Expr\Cast\Object_;
 use Illuminate\Support\Facades\DB;
 use App\UserDetails\UserDetails;
 use App\Lokacija\Lokacija;
+use App\LokacijaSkole;
+use App\Repositories\KorisnikRepository;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use stdClass;
@@ -30,73 +34,35 @@ class AuthController extends Controller
         'grad' => 'bail|required',
         'email' => 'bail|required|unique:korisnici|email',
         'password' => 'bail|required|confirmed',
+        'telefon' => 'bail|required',
     ];
 
-    public function __construct()
+    private $_korisnikRepo;
+
+    public function __construct(KorisnikRepository $korisnikRepo)
     {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
+        $this->_korisnikRepo = $korisnikRepo;
     }
 
     public function register(Request $request)
     {
-        $validator = Validator::make($request->all(), $this->validationRules);
+        $validator = $this->getValidatorForRequestedData($request->all());
         if ($validator->fails()) {
             return $this->failWithValidationErrors($validator->errors());
         }
 
-        return DB::transaction(function () use ($request, $validator) {
-            $dbFields = $validator->validated();
-            $dbFields['password'] = Hash::make($dbFields['password']);
-            $korisnik = new Korisnik($dbFields);
-            $korisnik->validan_do = Carbon::now()
-                ->addYears(1)
-                ->addDays(1)
-                ->format('Y-m-d h:i:s');
-            $korisnik->save();
-
-            return $this->successfullResponse();
-
-            // try {
-            //     $modifier = '+6 month';
-            //     $trialPeriod = '6 meseci';
-            //     $user = new User($request->all());
-            //     $user->password = Hash::make($request['password']);
-            //     $user->valid_until = $this->getPromoPeriodEndDate($modifier);
-            //     $user->save();
-
-            //     $userDetails=new UserDetails();
-            //     $userDetails->poreski_identifikacioni_broj='';
-            //     $userDetails->maticni_broj='';
-            //     $userDetails->user_id=$user->id;
-            //     $userDetails->opstina_id=null;
-            //     $userDetails->telefon='';
-            //     $userDetails->ulica_i_broj='';
-            //     $userDetails->email='';
-            //     $userDetails->naziv_skole='';
-            //     $userDetails->bankovni_racun='';
-            //     $userDetails->mesto='';
-            //     $userDetails->tip_skole=null;
-            //     $userDetails->sifra_skole='';
-            //     $userDetails->email_za_slanje='';
-            //     $userDetails->password_email_za_slanje='';
-            //     $userDetails->save();
-
-            //     $lokacija=new Lokacija();
-            //     $lokacija->user_id = $user->id;
-            //     $lokacija->naziv = 'Škola';
-            //     $lokacija->save();
-
-            //     return response()->json(new Success($trialPeriod));
-            // } catch (\Exception $e) {
-            //     if ($e->getCode() == ErrorCodes::UNIQUE_INDEX) {
-            //         Log::info('EMAIL ADRESA ZAUZETA : ' . $e->getMessage());
-            //         return response()->json(Fail::withMessage('Email adresa je zauzeta!'));
-            //     }
-
-            //     Log::critical($e->getMessage());
-            //     return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
-            // }
+        return DB::transaction(function () use ($validator) {
+            return $this->try(function () use ($validator) {
+                $this->_korisnikRepo->register($validator->validated());
+                return $this->successfullResponse();
+            });
         });
+    }
+
+    private function getValidatorForRequestedData($data)
+    {
+        return Validator::make($data, $this->validationRules);
     }
 
     /**
