@@ -10,6 +10,7 @@ use App\LokacijaSkole;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use stdClass;
 use Tests\TestCase;
@@ -72,14 +73,38 @@ class PrijavaTest extends TestCase
     }
 
     /** @test */
-    public function zaNepostojecegKorisnikaVracaGreskuOPogresnimKredencijalima()
+    public function zaNeispravneKredencijaleVracaGreskuOPogresnimKredencijalima()
     {
-        $this->requestData['password'] = 'asdasd';
-        $this->requestData['email'] = 'asdasd@asd.com';
-        $request = $this->post($this->url, $this->requestData);
+        $this->requestData['password'] = 'nepostojeci';
+        $this->requestData['email'] = 'nepostojeci@korisnik.com';
+        $response = $this->post($this->url, $this->requestData);
 
-        $responseJson = $request->decodeResponseJson();
+        $responseJson = $response->decodeResponseJson();
+        $this->assertArrayHasKey('errors', $responseJson);
+        $this->assertContains("Pogrešni kredencijali", $responseJson['errors']);
+    }
+
+    /** @test */
+    public function zaIspravneKredencijaleVracaToken()
+    {
+        $this->post('api/auth/registracija', [
+            'naziv' => 'Naziv skole',
+            'ulica_i_broj' => 'Naziv ulice i broj',
+            'grad' => 'naziv grada',
+            'email' => 'email@adresa.com',
+            'password' => 'lozinka',
+            'password_confirmation' => 'lozinka',
+            'telefon' => '123456789',
+        ]);
+
+        $this->requestData['password'] = 'lozinka';
+        $this->requestData['email'] = 'email@adresa.com';
+        $response = $this->post($this->url, $this->requestData);
+
+        $response->assertOk();
+        $responseJson = $response->decodeResponseJson();
         dd($responseJson);
-        $this->assertContains('errors', $responseJson);
+        $this->assertArrayHasKey('errors', $responseJson);
+        $this->assertContains("Pogrešni kredencijali", $responseJson['errors']);
     }
 }

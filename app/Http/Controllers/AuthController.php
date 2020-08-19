@@ -91,10 +91,11 @@ class AuthController extends Controller
     public function getToken($credentials)
     {
         $token = Auth::attempt($credentials);
-
         if (!$token) {
             throw new WrongCredentialsException();
         }
+
+        return $token;
     }
 
     private function respondWithError($errorMessage)

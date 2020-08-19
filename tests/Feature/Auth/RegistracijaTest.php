@@ -187,19 +187,4 @@ class RegistracijaTest extends TestCase
             LokacijaSkole::first()->id_korisnika
         );
     }
-
-    private function assertFieldIsRequired($polje, $getResponseCallback)
-    {
-        $response = $getResponseCallback();
-
-        $response->assertStatus(400);
-
-        $responseJson = $response->decodeResponseJson();
-        $this->assertCount(1, $responseJson['errors']);
-
-        $this->assertEquals(
-            $this->getErrorMessage(Lang::get('validation.required'), $polje),
-            $responseJson['errors'][0]
-        );
-    }
 }
