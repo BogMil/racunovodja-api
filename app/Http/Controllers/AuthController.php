@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Constants\DefaultValues;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\User\User;
@@ -23,20 +22,13 @@ use App\Lokacija\Lokacija;
 use App\LokacijaSkole;
 use App\Repositories\KorisnikRepository;
 use Carbon\Carbon;
+use Exception;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use stdClass;
 
 class AuthController extends Controller
 {
-    private $validationRules = [
-        'naziv' => 'bail|required',
-        'ulica_i_broj' => 'bail|required',
-        'grad' => 'bail|required',
-        'email' => 'bail|required|unique:korisnici|email',
-        'password' => 'bail|required|confirmed',
-        'telefon' => 'bail|required',
-    ];
-
     private $_korisnikRepo;
 
     public function __construct(KorisnikRepository $korisnikRepo)
@@ -47,43 +39,76 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $validator = $this->getValidatorForRequestedData($request->all());
+        $validator = $this->getRegisterDataValidator($request->all());
         if ($validator->fails()) {
             return $this->failWithValidationErrors($validator->errors());
         }
 
-        return DB::transaction(function () use ($validator) {
-            return $this->try(function () use ($validator) {
-                $this->_korisnikRepo->register($validator->validated());
-                return $this->successfullResponse();
-            });
-        });
+        return $this->tryRegister($validator->validated());
     }
 
-    private function getValidatorForRequestedData($data)
+    private function getRegisterDataValidator($data)
     {
-        return Validator::make($data, $this->validationRules);
+        $validationRules = [
+            'naziv' => 'bail|required',
+            'ulica_i_broj' => 'bail|required',
+            'grad' => 'bail|required',
+            'email' => 'bail|required|unique:korisnici|email',
+            'password' => 'bail|required|confirmed',
+            'telefon' => 'bail|required',
+        ];
+        return Validator::make($data, $validationRules);
     }
 
-    /**
-     * Get a JWT via given credentials.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function login()
+    private function tryRegister($data)
     {
-        $credentials = request(['email', 'password']);
         try {
-            if (!($token = auth()->attempt($credentials))) {
-                return response()->json(
-                    Fail::withMessage("Pogrešni kredencijali")
-                );
-            }
+            $this->_korisnikRepo->register($data);
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->systemErrorResponse($e);
+        }
+    }
+
+    public function login(Request $request)
+    {
+        $validator = $this->getLoginDataValidator($request->all());
+        if ($validator->fails()) {
+            return $this->failWithValidationErrors($validator->errors());
+        }
+
+        try {
+            $token = $this->getToken($validator->validated());
             return $this->respondWithToken($token);
+        } catch (WrongCredentialsException $e) {
+            return $this->failWithError("Pogrešni kredencijali");
         } catch (\Exception $e) {
             Log::critical($e->getMessage());
             return response()->json(new Error("Greška!"));
         }
+    }
+
+    public function getToken($credentials)
+    {
+        $token = Auth::attempt($credentials);
+
+        if (!$token) {
+            throw new WrongCredentialsException();
+        }
+    }
+
+    private function respondWithError($errorMessage)
+    {
+        return response()->json(Fail::withMessage($errorMessage));
+    }
+
+    private function getLoginDataValidator($data)
+    {
+        $validationRules = [
+            'email' => 'bail|required|email',
+            'password' => 'bail|required',
+        ];
+        return Validator::make($data, $validationRules);
     }
 
     /**
@@ -131,12 +156,6 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token)
     {
-        // return response()->json(new Success([
-        //     'access_token' => $token,
-        //     // 'token_type' => 'bearer',
-        //     // 'expires_in' => auth()->factory()->getTTL() * 60
-        // ]));
-
         $data = new stdClass();
         $data->jwt = $token;
         $data->user = auth()->user();
@@ -145,7 +164,6 @@ class AuthController extends Controller
     }
 }
 
-// class AuthenticatedUser
-// {
-//     public $name;
-// }
+class WrongCredentialsException extends Exception
+{
+}

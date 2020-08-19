@@ -7,14 +7,17 @@ use App\DetaljiKorisnika;
 use App\Korisnik;
 use App\LokacijaSkole;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class KorisnikRepository
 {
     public function register($data)
     {
-        $korisnik = $this->kreirajKorisnika($data);
-        $this->kreirajPodrazumevaneRelacijeZaKorisnika($korisnik);
+        DB::transaction(function () use ($data) {
+            $korisnik = $this->kreirajKorisnika($data);
+            $this->kreirajPodrazumevaneRelacijeZaKorisnika($korisnik);
+        });
     }
 
     private function kreirajKorisnika($data)

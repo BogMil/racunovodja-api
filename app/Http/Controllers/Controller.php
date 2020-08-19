@@ -87,6 +87,24 @@ class Controller extends BaseController
         return Response::json($errors, 400);
     }
 
+    protected function failWithErrors($errorMessages)
+    {
+        $errors = [
+            'errors' => $errorMessages,
+        ];
+
+        return Response::json($errors, 400);
+    }
+
+    protected function failWithError($errorMessage)
+    {
+        $errors = [
+            'errors' => [$errorMessage],
+        ];
+
+        return Response::json($errors, 400);
+    }
+
     protected function try($callback)
     {
         try {

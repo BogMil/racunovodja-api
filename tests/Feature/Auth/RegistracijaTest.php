@@ -12,17 +12,13 @@ use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
+use Tests\TestUtils;
 
-class RegisterTest extends TestCase
+class RegistracijaTest extends TestCase
 {
     use RefreshDatabase;
 
-    private function getErrorMessage($template, $attribute)
-    {
-        return str_replace(":attribute", $attribute, $template);
-    }
-
-    private $url = 'api/auth/register';
+    private $url = 'api/auth/registracija';
     private $requestData = [];
 
     public function setUp(): void
@@ -42,7 +38,6 @@ class RegisterTest extends TestCase
     /** @test */
     public function korisnikMozeDaSeRegistruje()
     {
-        $this->withoutExceptionHandling();
         $response = $this->post($this->url, $this->requestData);
         $response->assertOK();
         $this->assertCount(1, Korisnik::all());
@@ -55,7 +50,8 @@ class RegisterTest extends TestCase
         $getResponse = function () {
             return $this->post($this->url, $this->requestData);
         };
-        $this->poljeJeObavezno('naziv', $getResponse, Korisnik::class);
+        $this->assertCount(0, Korisnik::all());
+        TestUtils::assertFieldIsRequired('naziv', $getResponse);
     }
 
     /** @test */
@@ -65,8 +61,8 @@ class RegisterTest extends TestCase
         $getResponse = function () {
             return $this->post($this->url, $this->requestData);
         };
-
-        $this->poljeJeObavezno('ulica i broj', $getResponse, Korisnik::class);
+        $this->assertCount(0, Korisnik::all());
+        TestUtils::assertFieldIsRequired('ulica i broj', $getResponse);
     }
 
     /** @test */
@@ -76,8 +72,8 @@ class RegisterTest extends TestCase
         $getResponse = function () {
             return $this->post($this->url, $this->requestData);
         };
-
-        $this->poljeJeObavezno('grad', $getResponse, Korisnik::class);
+        $this->assertCount(0, Korisnik::all());
+        TestUtils::assertFieldIsRequired('grad', $getResponse);
     }
 
     /** @test */
@@ -87,8 +83,8 @@ class RegisterTest extends TestCase
         $getResponse = function () {
             return $this->post($this->url, $this->requestData);
         };
-
-        $this->poljeJeObavezno('password', $getResponse, Korisnik::class);
+        $this->assertCount(0, Korisnik::all());
+        TestUtils::assertFieldIsRequired('password', $getResponse);
     }
 
     /** @test */
@@ -96,21 +92,13 @@ class RegisterTest extends TestCase
     {
         $this->requestData['password_confirmation'] = '';
 
-        $response = $this->post($this->url, $this->requestData);
+        $getResponse = function () {
+            return $this->post($this->url, $this->requestData);
+        };
 
-        $responseJson = $response->decodeResponseJson();
-        $response->assertStatus(400);
         $this->assertCount(0, Korisnik::all());
 
-        $this->assertCount(1, $responseJson['errors']);
-
-        $this->assertEquals(
-            $this->getErrorMessage(
-                Lang::get('validation.confirmed'),
-                'password'
-            ),
-            $responseJson['errors'][0]
-        );
+        TestUtils::assertFieldIsConfirmed('password', $getResponse);
     }
 
     /** @test */
@@ -133,44 +121,33 @@ class RegisterTest extends TestCase
         $getResponse = function () {
             return $this->post($this->url, $this->requestData);
         };
+        $this->assertCount(0, Korisnik::all());
 
-        $this->poljeJeObavezno('email', $getResponse, Korisnik::class);
+        TestUtils::assertFieldIsRequired('email', $getResponse);
     }
 
     /** @test */
     public function emailMoraBitiJedinstven()
     {
         $this->post($this->url, $this->requestData);
-        $secondResponse = $this->post($this->url, $this->requestData);
+        $getResponse = function () {
+            return $this->post($this->url, $this->requestData);
+        };
 
-        $responseJson = $secondResponse->decodeResponseJson();
-        $secondResponse->assertStatus(400);
+        TestUtils::assertFieldIsUnique('email', $getResponse);
         $this->assertCount(1, Korisnik::all());
-
-        $this->assertCount(1, $responseJson['errors']);
-
-        $this->assertEquals(
-            $this->getErrorMessage(Lang::get('validation.unique'), 'email'),
-            $responseJson['errors'][0]
-        );
     }
 
     /** @test */
     public function emailMoraBitiValidan()
     {
-        $this->requestData['email'] = 'nevalidan format email-a';
-        $response = $this->post($this->url, $this->requestData);
+        $getResponse = function () {
+            $this->requestData['email'] = 'nevalidan format email-a';
+            return $this->post($this->url, $this->requestData);
+        };
 
-        $responseJson = $response->decodeResponseJson();
-        $response->assertStatus(400);
+        TestUtils::assertFieldIsEmail('email', $getResponse);
         $this->assertCount(0, Korisnik::all());
-
-        $this->assertCount(1, $responseJson['errors']);
-
-        $this->assertEquals(
-            $this->getErrorMessage(Lang::get('validation.email'), 'email'),
-            $responseJson['errors'][0]
-        );
     }
 
     /** @test */
@@ -180,8 +157,9 @@ class RegisterTest extends TestCase
         $getResponse = function () {
             return $this->post($this->url, $this->requestData);
         };
+        $this->assertCount(0, Korisnik::all());
 
-        $this->poljeJeObavezno('telefon', $getResponse, Korisnik::class);
+        TestUtils::assertFieldIsRequired('telefon', $getResponse);
     }
 
     /** @test */
@@ -210,14 +188,13 @@ class RegisterTest extends TestCase
         );
     }
 
-    private function poljeJeObavezno($polje, $getResponseCallback, $model)
+    private function assertFieldIsRequired($polje, $getResponseCallback)
     {
         $response = $getResponseCallback();
 
-        $responseJson = $response->decodeResponseJson();
         $response->assertStatus(400);
-        $this->assertCount(0, call_user_func("{$model}::all"));
 
+        $responseJson = $response->decodeResponseJson();
         $this->assertCount(1, $responseJson['errors']);
 
         $this->assertEquals(
