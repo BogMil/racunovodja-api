@@ -2,30 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\DefaultValues;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
-use App\User\User;
-use App\Constants\ErrorCodes;
 use App\Core\Responses\Fail;
 use App\Core\Responses\Error;
 use App\Core\Responses\Success;
-use App\DetaljiKorisnika;
-use App\Korisnik;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use PhpParser\Node\Expr\Cast\Object_;
-use Illuminate\Support\Facades\DB;
-use App\UserDetails\UserDetails;
-use App\Lokacija\Lokacija;
-use App\LokacijaSkole;
 use App\Repositories\KorisnikRepository;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use stdClass;
 
 class AuthController extends Controller
 {
@@ -49,21 +35,20 @@ class AuthController extends Controller
 
     private function getRegisterDataValidator($data)
     {
-        $validationRules = [
+        return Validator::make($data, [
             'naziv' => 'bail|required',
             'ulica_i_broj' => 'bail|required',
             'grad' => 'bail|required',
             'email' => 'bail|required|unique:korisnici|email',
             'password' => 'bail|required|confirmed',
             'telefon' => 'bail|required',
-        ];
-        return Validator::make($data, $validationRules);
+        ]);
     }
 
-    private function tryRegister($data)
+    private function tryRegister($validData)
     {
         try {
-            $this->_korisnikRepo->register($data);
+            $this->_korisnikRepo->register($validData);
             return $this->successfullResponse();
         } catch (\Exception $e) {
             return $this->systemErrorResponse($e);
@@ -77,14 +62,18 @@ class AuthController extends Controller
             return $this->failWithValidationErrors($validator->errors());
         }
 
+        return $this->tryLogin($validator->validated());
+    }
+
+    private function tryLogin($validData)
+    {
         try {
-            $token = $this->getToken($validator->validated());
+            $token = $this->getToken($validData);
             return $this->respondWithToken($token);
         } catch (WrongCredentialsException $e) {
             return $this->failWithError("Pogrešni kredencijali");
         } catch (\Exception $e) {
-            Log::critical($e->getMessage());
-            return response()->json(new Error("Greška!"));
+            return $this->systemErrorResponse($e);
         }
     }
 
@@ -98,11 +87,6 @@ class AuthController extends Controller
         return $token;
     }
 
-    private function respondWithError($errorMessage)
-    {
-        return response()->json(Fail::withMessage($errorMessage));
-    }
-
     private function getLoginDataValidator($data)
     {
         $validationRules = [
@@ -112,11 +96,6 @@ class AuthController extends Controller
         return Validator::make($data, $validationRules);
     }
 
-    /**
-     * Get the authenticated User.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function me()
     {
         return response()->json(auth()->user());
@@ -130,7 +109,7 @@ class AuthController extends Controller
     public function logout()
     {
         try {
-            auth()->logout();
+            Auth::logout();
             return response()->json(new Success('Successfully logged out'));
         } catch (\Exception $e) {
             Log::critical($e->getMessage());
@@ -157,11 +136,9 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token)
     {
-        $data = new stdClass();
-        $data->jwt = $token;
-        $data->user = auth()->user();
-
-        return response()->json(new Success($data));
+        return response()->json([
+            'jwt' => $token,
+        ]);
     }
 }
 

@@ -12,18 +12,16 @@ use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
+use Namshi\JOSE\JWT as JOSEJWT;
 use stdClass;
 use Tests\TestCase;
 use Tests\TestUtils;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\JWT;
 
 class PrijavaTest extends TestCase
 {
     use RefreshDatabase;
-
-    private function getErrorMessage($template, $attribute)
-    {
-        return str_replace(":attribute", $attribute, $template);
-    }
 
     private $url = 'api/auth/prijava';
     private $requestData = [];
@@ -85,7 +83,7 @@ class PrijavaTest extends TestCase
     }
 
     /** @test */
-    public function zaIspravneKredencijaleVracaToken()
+    public function zaIspravneKredencijaleVracaJwt()
     {
         $this->post('api/auth/registracija', [
             'naziv' => 'Naziv skole',
@@ -97,14 +95,13 @@ class PrijavaTest extends TestCase
             'telefon' => '123456789',
         ]);
 
-        $this->requestData['password'] = 'lozinka';
-        $this->requestData['email'] = 'email@adresa.com';
-        $response = $this->post($this->url, $this->requestData);
+        $response = $this->post($this->url, [
+            'email' => 'email@adresa.com',
+            'password' => 'lozinka',
+        ]);
 
         $response->assertOk();
         $responseJson = $response->decodeResponseJson();
-        dd($responseJson);
-        $this->assertArrayHasKey('errors', $responseJson);
-        $this->assertContains("Pogrešni kredencijali", $responseJson['errors']);
+        $this->assertArrayHasKey('jwt', $responseJson);
     }
 }

@@ -10,6 +10,7 @@ use App\LokacijaSkole;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Lang;
 use Tests\TestCase;
 use Tests\TestUtils;
