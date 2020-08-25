@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Core\Responses\Fail;
 use App\Core\Responses\Error;
 use App\Core\Responses\Success;
+use App\Korisnik;
 use Illuminate\Http\Request;
 use App\Repositories\KorisnikRepository;
 use Exception;
@@ -93,47 +94,33 @@ class AuthController extends Controller
             'email' => 'bail|required|email',
             'password' => 'bail|required',
         ];
+
         return Validator::make($data, $validationRules);
     }
 
     public function me()
     {
-        return response()->json(auth()->user());
+        $user = auth()->user();
+        unset($user->password);
+
+        return $this->successfullResponse($user);
     }
 
-    /**
-     * Log the user out (Invalidate the token).
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function logout()
     {
         try {
             Auth::logout();
-            return response()->json(new Success('Successfully logged out'));
+            return $this->successfullResponse();
         } catch (\Exception $e) {
-            Log::critical($e->getMessage());
-            return response()->json(new Error("Greška!"));
+            return $this->systemErrorResponse($e);
         }
     }
 
-    /**
-     * Refresh a token.
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function refresh()
     {
         return $this->respondWithToken(auth()->refresh());
     }
 
-    /**
-     * Get the token array structure.
-     *
-     * @param  string $token
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
     protected function respondWithToken($token)
     {
         return response()->json([

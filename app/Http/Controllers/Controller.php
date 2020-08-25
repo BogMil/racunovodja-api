@@ -21,7 +21,7 @@ class Controller extends BaseController
 
     protected function successfullResponse($data = null)
     {
-        return response()->json(new Success($data));
+        return response()->json($data);
     }
 
     protected function unsuccessfullResponse($data = null)

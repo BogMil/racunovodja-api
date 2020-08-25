@@ -6,11 +6,11 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\Feature\TestCaseHelper;
 use Tests\TestCase;
 
-class MeTest extends TestCase
+class LogoutTest extends TestCase
 {
     use RefreshDatabase;
 
-    private $url = 'api/auth/me';
+    private $url = 'api/auth/logout';
 
     /** @test */
     public function VracaStatus_401AkoKorisnikNijePrijavljen()
@@ -25,12 +25,12 @@ class MeTest extends TestCase
     }
 
     /** @test */
-    public function neVracaPasswordHashKorisnika()
+    public function nakonLogoutaTokenJeNevalidan()
     {
-        $this->withHeader('Authorization', "Bearer {$this->getValidJwt()}");
-
-        $response = $this->post($this->url);
-        $responseJson = $response->decodeResponseJson();
-        $this->assertArrayNotHasKey('password', $responseJson);
+        $jwt = $this->getValidJwt();
+        $this->withHeader('Authorization', "Bearer {$jwt}");
+        $this->post($this->url);
+        $request = $this->post($this->url);
+        $request->assertStatus(401);
     }
 }
