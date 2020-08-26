@@ -22,10 +22,10 @@ class CreateDetaljiKorisnikaTable extends Migration
                 ->foreignId('id_korisnika')
                 ->references('id')
                 ->on('korisnici');
-            // $table
-            //     ->foreignId('id_opstine')
-            //     ->nullable()
-            //     ->default(null);
+            $table
+                ->foreignId('id_opstine')
+                ->nullable()
+                ->default(null);
             $table->string('email_za_slanje')->default('');
             $table->string('password_email_za_slanje')->default('');
             $table->string('bankovni_racun')->default('');

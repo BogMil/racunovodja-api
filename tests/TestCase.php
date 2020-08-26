@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Exception;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -29,16 +30,40 @@ abstract class TestCase extends BaseTestCase
         return $responseJson['jwt'];
     }
 
-    public function radiZaAuthentikovanogKorisnika($url, array $data = [])
-    {
-        $this->withHeader('Authorization', "Bearer {$this->getValidJwt()}");
-        $response = $this->post($url, $data);
+    public function radiZaAuthentikovanogKorisnika(
+        $url,
+        $method = "post",
+        array $data = []
+    ) {
+        $this->withJwt();
+        $response = $this->getResponse($url, $method, $data);
         $response->assertOk();
     }
 
-    public function _401AkoKorisnikNijePrijavljen($url, array $data = [])
-    {
-        $response = $this->post($url, $data);
+    public function _401AkoKorisnikNijePrijavljen(
+        $url,
+        $method = "post",
+        array $data = []
+    ) {
+        $response = $this->getResponse($url, $method, $data);
         $response->assertStatus(401);
+    }
+
+    private function getResponse($url, $method = "post", array $data = [])
+    {
+        switch ($method) {
+            case "get":
+                return $this->get($url, $data);
+            case "post":
+                return $this->post($url, $data);
+
+            default:
+                throw new Exception("Unkown http method");
+        }
+    }
+
+    public function withJwt()
+    {
+        $this->withHeader('Authorization', "Bearer {$this->getValidJwt()}");
     }
 }

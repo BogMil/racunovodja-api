@@ -22,7 +22,8 @@ class TestUtils extends TestCase
     ) {
         self::assertFieldFailedDataValidationWithMessage(
             $getResponseCallback,
-            DataValidationErrorMessages::required($fieldName)
+            DataValidationErrorMessages::required($fieldName),
+            $fieldName
         );
     }
 
@@ -30,7 +31,8 @@ class TestUtils extends TestCase
     {
         self::assertFieldFailedDataValidationWithMessage(
             $getResponseCallback,
-            DataValidationErrorMessages::email($fieldName)
+            DataValidationErrorMessages::email($fieldName),
+            $fieldName
         );
     }
 
@@ -38,7 +40,8 @@ class TestUtils extends TestCase
     {
         self::assertFieldFailedDataValidationWithMessage(
             $getResponseCallback,
-            DataValidationErrorMessages::unique($fieldName)
+            DataValidationErrorMessages::unique($fieldName),
+            $fieldName
         );
     }
 
@@ -48,19 +51,21 @@ class TestUtils extends TestCase
     ) {
         self::assertFieldFailedDataValidationWithMessage(
             $getResponseCallback,
-            DataValidationErrorMessages::confirmed($fieldName)
+            DataValidationErrorMessages::confirmed($fieldName),
+            $fieldName
         );
     }
 
     private static function assertFieldFailedDataValidationWithMessage(
         $getResponseCallback,
-        $expectedErrorMessage
+        $expectedErrorMessage,
+        $fieldName
     ) {
         $response = $getResponseCallback();
         $response->assertStatus(400);
 
         $errors = $response->decodeResponseJson()['errors'];
 
-        self::assertContains($expectedErrorMessage, $errors);
+        self::assertContains($expectedErrorMessage, $errors[$fieldName]);
     }
 }

@@ -72,16 +72,16 @@ class Controller extends BaseController
 
     protected function failWithValidationErrors($errors)
     {
-        $errorMessages = [];
-        foreach ($errors->getMessages() as $message) {
-            $errorMessages = array_merge(
-                $errorMessages,
-                array_values($message)
-            );
-        }
+        // $errorMessages = [];
+        // foreach ($errors->getMessages() as $message) {
+        //     $errorMessages = array_merge(
+        //         $errorMessages,
+        //         array_values($message)
+        //     );
+        // }
 
         $errors = [
-            'errors' => $errorMessages,
+            'errors' => $errors,
         ];
 
         return Response::json($errors, 400);

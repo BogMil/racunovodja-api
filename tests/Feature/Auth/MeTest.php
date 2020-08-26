@@ -27,7 +27,7 @@ class MeTest extends TestCase
     /** @test */
     public function neVracaPasswordHashKorisnika()
     {
-        $this->withHeader('Authorization', "Bearer {$this->getValidJwt()}");
+        $this->withJwt();
 
         $response = $this->post($this->url);
         $responseJson = $response->decodeResponseJson();

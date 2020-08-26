@@ -27,8 +27,7 @@ class LogoutTest extends TestCase
     /** @test */
     public function nakonLogoutaTokenJeNevalidan()
     {
-        $jwt = $this->getValidJwt();
-        $this->withHeader('Authorization', "Bearer {$jwt}");
+        $this->withJwt();
         $this->post($this->url);
         $request = $this->post($this->url);
         $request->assertStatus(401);

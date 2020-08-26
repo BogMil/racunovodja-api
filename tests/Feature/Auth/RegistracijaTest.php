@@ -63,7 +63,7 @@ class RegistracijaTest extends TestCase
             return $this->post($this->url, $this->requestData);
         };
         $this->assertCount(0, Korisnik::all());
-        TestUtils::assertFieldIsRequired('ulica i broj', $getResponse);
+        TestUtils::assertFieldIsRequired('ulica_i_broj', $getResponse);
     }
 
     /** @test */

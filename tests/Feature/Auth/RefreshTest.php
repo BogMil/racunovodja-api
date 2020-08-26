@@ -40,9 +40,7 @@ class RefreshTest extends TestCase
     /** @test */
     public function refresovaniTokenNijeViseValidan()
     {
-        $firstToken = $this->getValidJwt();
-
-        $this->withHeader('Authorization', "Bearer {$firstToken}");
+        $this->withJwt();
         $this->post($this->url);
 
         $response = $this->post($this->url);

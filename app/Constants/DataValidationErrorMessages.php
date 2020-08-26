@@ -42,6 +42,15 @@ class DataValidationErrorMessages
         $attributeName,
         $errorKey
     ) {
-        return str_replace(":attribute", $attributeName, Lang::get($errorKey));
+        $prettyAttrName = self::withoutDashChars($attributeName);
+        return str_replace(":attribute", $prettyAttrName, Lang::get($errorKey));
+    }
+
+    private static function withoutDashChars($fieldName)
+    {
+        if (strpos($fieldName, '_') !== false) {
+            return str_replace('_', ' ', $fieldName);
+        }
+        return $fieldName;
     }
 }
