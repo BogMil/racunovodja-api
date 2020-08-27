@@ -25,12 +25,22 @@ class MeTest extends TestCase
     }
 
     /** @test */
+    public function vracaKorisnikaUFormatu()
+    {
+        $this->withJwt();
+
+        $response = $this->post($this->url);
+        $responseJson = $response->decodeResponseJson();
+        $this->assertArrayHasKey('korisnik', $responseJson);
+    }
+
+    /** @test */
     public function neVracaPasswordHashKorisnika()
     {
         $this->withJwt();
 
         $response = $this->post($this->url);
         $responseJson = $response->decodeResponseJson();
-        $this->assertArrayNotHasKey('password', $responseJson);
+        $this->assertArrayNotHasKey('password', $responseJson['korisnik']);
     }
 }

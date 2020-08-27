@@ -50,7 +50,9 @@ class AuthController extends Controller
     {
         try {
             $this->_korisnikRepo->register($validData);
-            return $this->successfullResponse();
+            return $this->successfullResponse([
+                "probni_period" => "godinu dana",
+            ]);
         } catch (\Exception $e) {
             return $this->systemErrorResponse($e);
         }
@@ -72,7 +74,7 @@ class AuthController extends Controller
             $token = $this->getToken($validData);
             return $this->respondWithToken($token);
         } catch (WrongCredentialsException $e) {
-            return $this->failWithError("Pogrešni kredencijali");
+            return $this->failWithErrors(["greska" => "Pogrešni kredencijali"]);
         } catch (\Exception $e) {
             return $this->systemErrorResponse($e);
         }
@@ -103,7 +105,7 @@ class AuthController extends Controller
         $user = auth()->user();
         unset($user->password);
 
-        return $this->successfullResponse($user);
+        return $this->successfullResponse(["korisnik" => $user]);
     }
 
     public function logout()

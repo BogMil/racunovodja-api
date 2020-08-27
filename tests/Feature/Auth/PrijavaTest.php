@@ -79,7 +79,11 @@ class PrijavaTest extends TestCase
 
         $responseJson = $response->decodeResponseJson();
         $this->assertArrayHasKey('errors', $responseJson);
-        $this->assertContains("Pogrešni kredencijali", $responseJson['errors']);
+
+        $this->assertEquals(
+            ["greska" => "Pogrešni kredencijali"],
+            $responseJson['errors']
+        );
     }
 
     /** @test */

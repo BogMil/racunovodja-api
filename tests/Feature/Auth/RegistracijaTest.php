@@ -188,4 +188,13 @@ class RegistracijaTest extends TestCase
             LokacijaSkole::first()->id_korisnika
         );
     }
+
+    /** @test */
+    public function uspesnaRegistracijaVracaProbniPeriod()
+    {
+        $response = $this->post($this->url, $this->requestData);
+
+        $json = $response->decodeResponseJson();
+        $this->assertEquals(["probni_period" => "godinu dana"], $json);
+    }
 }
