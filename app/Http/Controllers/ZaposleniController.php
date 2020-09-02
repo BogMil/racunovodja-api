@@ -3,19 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\ZaposleniSaJmbgIliSifromVecPostojiException;
-use App\Repositories\ZaposleniRepository;
+use App\Services\KorisnikService;
 use App\Services\ZaposleniService;
-use App\Zaposleni;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ZaposleniController extends Controller
 {
     private $_zaposleniService;
-    public function __construct(ZaposleniService $zaposleniService)
-    {
+    private $_korisnikService;
+
+    public function __construct(
+        ZaposleniService $zaposleniService,
+        KorisnikService $korisnikService
+    ) {
         $this->middleware('auth:api');
         $this->_zaposleniService = $zaposleniService;
+        $this->_korisnikService = $korisnikService;
     }
 
     public function index()
@@ -55,8 +59,31 @@ class ZaposleniController extends Controller
             'id_opstine' => '',
             'email' => 'bail|nullable|email',
             'bankovni_racun' => 'bail|required',
-            'sifra' => 'bail|required',
-            'jmbg' => 'bail|required|size:13',
+            'sifra' => [
+                'bail',
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (
+                        $this->_korisnikService->vecImaZaposlenogSaSifrom(
+                            $value
+                        )
+                    ) {
+                        $fail('Zaposleni sa tom šifrom već postoji.');
+                    }
+                },
+            ],
+            'jmbg' => [
+                'bail',
+                'required',
+                'size:13',
+                function ($attribute, $value, $fail) {
+                    if (
+                        $this->_korisnikService->vecImaZaposlenogSaJmbg($value)
+                    ) {
+                        $fail('Zaposleni sa tim jmbg-om već postoji.');
+                    }
+                },
+            ],
             'aktivan' => '',
         ]);
     }

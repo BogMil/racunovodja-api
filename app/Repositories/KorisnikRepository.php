@@ -6,6 +6,7 @@ use App\Constants\DefaultValues;
 use App\DetaljiKorisnika;
 use App\Korisnik;
 use App\LokacijaSkole;
+use App\Zaposleni;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -50,5 +51,19 @@ class KorisnikRepository
                 'naziv' => DefaultValues::PODRAZUMEVANA_LOKACIJA_SKOLE,
             ])
         );
+    }
+
+    public function vecImaZaposlenogSaJmbg($jmbg)
+    {
+        return Zaposleni::where('id_korisnika', auth()->user()->id)
+            ->Where('jmbg', $jmbg)
+            ->count() > 0;
+    }
+
+    public function vecImaZaposlenogSaSifrom($sifra)
+    {
+        return Zaposleni::where('id_korisnika', auth()->user()->id)
+            ->Where('sifra', $sifra)
+            ->count() > 0;
     }
 }

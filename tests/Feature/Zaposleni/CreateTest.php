@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Opstina;
+namespace Tests\Feature\Zaposleni;
 
 use App\Opstina;
 use App\Zaposleni;
@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\TestUtils;
 
-class ZaposleniTest extends TestCase
+class CreateTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -29,34 +29,6 @@ class ZaposleniTest extends TestCase
             'jmbg' => '1231231231231',
             'id_opstine' => '1',
         ];
-    }
-
-    /** @test */
-    public function VracaStatus_401AkoKorisnikNijePrijavljen()
-    {
-        parent::_401AkoKorisnikNijePrijavljen($this->url, "get");
-    }
-
-    /** @test */
-    public function radiZaAutentifikovanogKorisnika()
-    {
-        parent::radiZaAuthentikovanogKorisnika($this->url, "get");
-    }
-
-    /** @test */
-    public function getVracaListuZaposlenih()
-    {
-        $this->withJwt();
-        $this->setIdOpstine();
-        $this->post($this->url, $this->requestData);
-        $this->post($this->url, $this->requestData);
-        $this->post($this->url, $this->requestData);
-
-        $response = $this->get($this->url, $this->requestData);
-        dd($response->decodeResponseJson());
-
-        $response->assertOK();
-        $this->assertCount(1, Zaposleni::all());
     }
 
     /** @test */
@@ -162,9 +134,34 @@ class ZaposleniTest extends TestCase
         $this->requestData['sifra'] = '999';
         $response = $this->post($this->url, $this->requestData);
 
-        $json = $response->decodeResponseJson();
-        // dd($json);
         $this->assertCount(1, Zaposleni::all());
+        $responseJson = $response->decodeResponseJson();
+        $this->assertArrayHasKey('errors', $responseJson);
+        $this->assertArrayHasKey('jmbg', $responseJson['errors']);
+        $this->assertContains(
+            'Zaposleni sa tim jmbg-om već postoji.',
+            $responseJson['errors']['jmbg']
+        );
+    }
+
+    /** @test */
+    public function sifraJeJedinstvenaUOkviruKorisnika()
+    {
+        $this->withJwt();
+        $this->post($this->url, $this->requestData);
+        $this->assertCount(1, Zaposleni::all());
+
+        $this->requestData['jmbg'] = '1232343450000';
+        $response = $this->post($this->url, $this->requestData);
+        $this->assertCount(1, Zaposleni::all());
+
+        $responseJson = $response->decodeResponseJson();
+        $this->assertArrayHasKey('errors', $responseJson);
+        $this->assertArrayHasKey('sifra', $responseJson['errors']);
+        $this->assertContains(
+            'Zaposleni sa tom šifrom već postoji.',
+            $responseJson['errors']['sifra']
+        );
     }
 
     private function poljeNijeObavezno($nazivPolja)
