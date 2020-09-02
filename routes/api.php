@@ -36,6 +36,8 @@ Route::group(
 );
 
 Route::get('opstina', 'App\Http\Controllers\OpstinaController@index');
+
+Route::resource('zaposleni', 'App\Http\Controllers\ZaposleniController');
 //////
 Route::get(
     'employee/{id}/availableRelations',

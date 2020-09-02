@@ -66,4 +66,9 @@ abstract class TestCase extends BaseTestCase
     {
         $this->withHeader('Authorization', "Bearer {$this->getValidJwt()}");
     }
+
+    public function withoutJwt()
+    {
+        $this->withHeader('Authorization', "");
+    }
 }

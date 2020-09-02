@@ -34,7 +34,6 @@ class EmployeeController extends Controller
         }
     }
 
-
     public function getActiveOnes()
     {
         try {
@@ -57,31 +56,39 @@ class EmployeeController extends Controller
         try {
             $employee = new Employee($request->all());
 
-            $currentUserAlreadyHasEmployee = auth()->user()
-                ->employees
-                ->filter(function ($emp) use ($employee) {
-                    return $emp->number == $employee->number
-                        || $emp->jmbg == $employee->jmbg;
-                })
-                ->count() > 0;
+            $currentUserAlreadyHasEmployee =
+                auth()
+                    ->user()
+                    ->employees->filter(function ($emp) use ($employee) {
+                        return $emp->number == $employee->number ||
+                            $emp->jmbg == $employee->jmbg;
+                    })
+                    ->count() > 0;
 
-            if ($currentUserAlreadyHasEmployee)
-                return response()->json(Fail::withMessage('Zaposleni sa navedenim jmbg-om ili brojem je već unet u bazu'));
+            if ($currentUserAlreadyHasEmployee) {
+                return response()->json(
+                    Fail::withMessage(
+                        'Zaposleni sa navedenim jmbg-om ili brojem je već unet u bazu'
+                    )
+                );
+            }
 
             $employee->user_id = auth()->user()->id;
-            if($employee->municipality_id<0)
-                $employee->municipality_id=null;
+            if ($employee->municipality_id < 0) {
+                $employee->municipality_id = null;
+            }
             $employee->save();
             return $this->successfullResponse();
         } catch (\Exception $e) {
             Log::critical($e->getMessage());
-            return response()->json(new Error('Greška prilikom snimanja podataka u bazu'));
+            return response()->json(
+                new Error('Greška prilikom snimanja podataka u bazu')
+            );
         }
     }
 
     public function show($id)
     {
-
     }
     public function update(Request $request, $id)
     {
@@ -89,22 +96,25 @@ class EmployeeController extends Controller
             $entity = Employee::findOrFail($id);
 
             if ($entity->user_id == auth()->user()->id) {
-
-                $otherEmployees = auth()->user()
-                    ->employees
-                    ->filter(function ($emp) use ($entity) {
-                        return $emp->number != $entity->number
-                            && $emp->jmbg != $entity->jmbg;
+                $otherEmployees = auth()
+                    ->user()
+                    ->employees->filter(function ($emp) use ($entity) {
+                        return $emp->number != $entity->number &&
+                            $emp->jmbg != $entity->jmbg;
                     });
 
-                $numberOfOtherEmployeesWithJmbgOrNumber = $otherEmployees->filter(function ($emp) use ($request) {
-                    return $emp->number == $request['number']
-                        || $emp->jmbg == $request['jmbg'];
-                })->count();
+                $numberOfOtherEmployeesWithJmbgOrNumber = $otherEmployees
+                    ->filter(function ($emp) use ($request) {
+                        return $emp->number == $request['number'] ||
+                            $emp->jmbg == $request['jmbg'];
+                    })
+                    ->count();
 
-
-                if ($numberOfOtherEmployeesWithJmbgOrNumber > 0)
-                    return $this->failWithMessage('Već postoji zaposleni sa tim brojem ili jmbg-om');
+                if ($numberOfOtherEmployeesWithJmbgOrNumber > 0) {
+                    return $this->failWithMessage(
+                        'Već postoji zaposleni sa tim brojem ili jmbg-om'
+                    );
+                }
 
                 $entity->jmbg = $request['jmbg'];
                 $entity->number = $request['number'];
@@ -115,17 +125,23 @@ class EmployeeController extends Controller
 
                 $entity->banc_account = $request['banc_account'];
                 $entity->municipality_id = $request['municipality_id'];
-                if ($entity->municipality_id <= 0)
+                if ($entity->municipality_id <= 0) {
                     $entity->municipality_id = null;
+                }
 
                 $entity->save();
 
                 return $this->successfullResponse();
             } else {
-                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+                return $this->failWithMessage(
+                    'Nemate parava pristupa tuđim podacima'
+                );
             }
         } catch (\Exception $e) {
-            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+            return $this->errorResponse(
+                'Greška prilikom snimanja podataka u bazu',
+                $e
+            );
         }
     }
 
@@ -133,13 +149,19 @@ class EmployeeController extends Controller
     {
         try {
             $employee = Employee::findOrFail($id);
-            if ($employee->user_id != auth()->user()->id)
-                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+            if ($employee->user_id != auth()->user()->id) {
+                return $this->failWithMessage(
+                    'Nemate parava pristupa tuđim podacima'
+                );
+            }
 
             $employee->delete();
             return $this->successfullResponse();
         } catch (\Exception $e) {
-            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+            return $this->errorResponse(
+                'Greška prilikom snimanja podataka u bazu',
+                $e
+            );
         }
     }
 
@@ -147,19 +169,25 @@ class EmployeeController extends Controller
     {
         try {
             $employee = Employee::findOrFail($id);
-            if ($employee->user_id != auth()->user()->id)
-                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+            if ($employee->user_id != auth()->user()->id) {
+                return $this->failWithMessage(
+                    'Nemate parava pristupa tuđim podacima'
+                );
+            }
 
             $currentRelationsId = $employee->defaultRelations->pluck('id');
 
-            $availableRelations =
-                Relation::where('user_id', auth()->user()->id)
+            $availableRelations = Relation::where('user_id', auth()->user()->id)
                 ->with('lokacija')
-                ->whereNotIn('id', $currentRelationsId)->get();
+                ->whereNotIn('id', $currentRelationsId)
+                ->get();
 
             return $this->successfullResponse($availableRelations);
         } catch (\Exception $e) {
-            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+            return $this->errorResponse(
+                'Greška prilikom snimanja podataka u bazu',
+                $e
+            );
         }
     }
 
@@ -168,14 +196,20 @@ class EmployeeController extends Controller
         try {
             $relationId = $request['relationId'];
             $employee = Employee::findOrFail($employeeId);
-            if ($employee->user_id != auth()->user()->id)
-                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+            if ($employee->user_id != auth()->user()->id) {
+                return $this->failWithMessage(
+                    'Nemate parava pristupa tuđim podacima'
+                );
+            }
 
             $employee->defaultRelations()->attach($relationId);
 
             return $this->successfullResponse();
         } catch (\Exception $e) {
-            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+            return $this->errorResponse(
+                'Greška prilikom snimanja podataka u bazu',
+                $e
+            );
         }
     }
 
@@ -185,13 +219,19 @@ class EmployeeController extends Controller
             $relationId = $request['relationId'];
 
             $employee = Employee::findOrFail($id);
-            if ($employee->user_id != auth()->user()->id)
-                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+            if ($employee->user_id != auth()->user()->id) {
+                return $this->failWithMessage(
+                    'Nemate parava pristupa tuđim podacima'
+                );
+            }
 
             $employee->defaultRelations()->detach($relationId);
             return $this->successfullResponse();
         } catch (\Exception $e) {
-            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+            return $this->errorResponse(
+                'Greška prilikom snimanja podataka u bazu',
+                $e
+            );
         }
     }
 
@@ -200,16 +240,21 @@ class EmployeeController extends Controller
         try {
             $email = $request['email'];
 
-            $employee = Employee::where('jmbg',$jmbg)->firstOrFail();
-            if ($employee->user_id != auth()->user()->id)
-                return $this->failWithMessage('Nemate parava pristupa tuđim podacima');
+            $employee = Employee::where('jmbg', $jmbg)->firstOrFail();
+            if ($employee->user_id != auth()->user()->id) {
+                return $this->failWithMessage(
+                    'Nemate parava pristupa tuđim podacima'
+                );
+            }
 
-            $employee->email=$email;
+            $employee->email = $email;
             $employee->save();
             return $this->successfullResponse();
         } catch (\Exception $e) {
-            return $this->errorResponse('Greška prilikom snimanja podataka u bazu', $e);
+            return $this->errorResponse(
+                'Greška prilikom snimanja podataka u bazu',
+                $e
+            );
         }
     }
-
 }

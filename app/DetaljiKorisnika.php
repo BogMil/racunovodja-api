@@ -10,7 +10,7 @@ class DetaljiKorisnika extends Model
 
     protected $guarded = [];
 
-    public function detalji()
+    public function opstina()
     {
         return $this->hasOne('App\Opstina', 'id_opstine');
     }

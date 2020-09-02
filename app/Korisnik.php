@@ -18,6 +18,11 @@ class Korisnik extends Authenticatable implements JWTSubject
         return $this->hasOne('App\DetaljiKorisnika', 'id_korisnika');
     }
 
+    public function zaposleni()
+    {
+        return $this->hasMany('App\Zaposleni', 'id_korisnika');
+    }
+
     public function lokacijeSkole()
     {
         return $this->hasMany('App\LokacijaSkole', 'id_korisnika');
