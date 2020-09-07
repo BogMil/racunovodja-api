@@ -82,28 +82,18 @@ class ZaposleniController extends Controller
 
     public function destroy($id)
     {
-        try {
-            $employee = $this->_zaposleniService->find($id);
-            if ($employee->id_korisnika != auth()->user()->id) {
-                return $this->failWithMessage(
-                    'Nemate parava pristupa tuđim podacima'
-                );
-            }
-
-            $employee->delete();
-            return $this->successfullResponse();
-        } catch (\Exception $e) {
-            return $this->systemErrorResponse($e);
+        $validator = $this->_validator->forDelete(['id' => $id]);
+        if ($validator->fails()) {
+            return $this->failWithValidationErrors($validator->errors());
         }
+        return $this->tryDestroy($validator->validated());
     }
 
-    private function tryUpdate($validData)
+    private function tryDestroy($validData)
     {
         try {
-            $this->_zaposleniService->Update($validData);
+            $this->_zaposleniService->delete($validData['id']);
             return $this->successfullResponse();
-        } catch (ZaposleniSaJmbgIliSifromVecPostojiException $e) {
-            return $this->failWithErrors($e->getMessage());
         } catch (\Exception $e) {
             return $this->systemErrorResponse($e);
         }

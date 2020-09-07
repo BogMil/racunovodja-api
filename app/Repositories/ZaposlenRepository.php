@@ -23,6 +23,12 @@ class ZaposlenRepository
         $employee->save();
     }
 
+    public function delete($id)
+    {
+        $entity = Zaposleni::findOrFail($id);
+        $entity->delete();
+    }
+
     public function update($data)
     {
         $employee = Zaposleni::findOrFail($data['id']);

@@ -118,4 +118,22 @@ class ZaposleniValidator
             ],
         ]);
     }
+
+    public function forDelete($data)
+    {
+        return Validator::make($data, [
+            'id' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (
+                        !$this->_zaposleniService->zaposleniRadiZaLogovanogKorisnika(
+                            $value
+                        )
+                    ) {
+                        $fail(DataValidationErrorMessages::neovlasceniPristup);
+                    }
+                },
+            ],
+        ]);
+    }
 }

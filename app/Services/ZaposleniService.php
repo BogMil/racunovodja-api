@@ -43,6 +43,11 @@ class ZaposleniService
         $this->_zaposleniRepository->update($validData);
     }
 
+    public function delete($id)
+    {
+        $this->_zaposleniRepository->delete($id);
+    }
+
     public function zaposleniRadiZaLogovanogKorisnika($idZaposlenog)
     {
         $entity = $this->_zaposleniRepository->find($idZaposlenog);
