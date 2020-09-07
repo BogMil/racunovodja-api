@@ -1,9 +1,7 @@
 <?php
 
-namespace Tests\Feature\Opstina;
+namespace Tests\Feature;
 
-use App\Opstina;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

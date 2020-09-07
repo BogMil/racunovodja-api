@@ -53,4 +53,6 @@ class DataValidationErrorMessages
         }
         return $fieldName;
     }
+
+    public const neovlasceniPristup = "Nemate prava da pristupate tuđim podacima";
 }

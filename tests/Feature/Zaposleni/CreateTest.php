@@ -2,9 +2,7 @@
 
 namespace Tests\Feature\Zaposleni;
 
-use App\Opstina;
 use App\Zaposleni;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tests\TestUtils;
@@ -34,6 +32,7 @@ class CreateTest extends TestCase
     /** @test */
     public function zaposleniMozeDaSeKreira()
     {
+        $this->withoutExceptionHandling();
         $this->withJwt();
         $this->setIdOpstine();
         $response = $this->post($this->url, $this->requestData);
