@@ -98,4 +98,18 @@ class ZaposleniController extends Controller
             return $this->systemErrorResponse($e);
         }
     }
+
+    public function izdvojNedostajuceJmbgove(Request $request)
+    {
+        try {
+            $jmbgs = $request['jmbgs'];
+            $nedostajuci = $this->_zaposleniService->nedostajuciJmbgoviLogovanogKorisnika(
+                $jmbgs
+            );
+
+            return $this->successfullResponse($nedostajuci);
+        } catch (\Exception $e) {
+            return $this->systemErrorResponse($e);
+        }
+    }
 }

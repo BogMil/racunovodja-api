@@ -118,7 +118,7 @@ return [
     'size' => [
         'numeric' => 'The :attribute must be :size.',
         'file' => 'The :attribute must be :size kilobytes.',
-        'string' => 'The :attribute must be :size characters.',
+        'string' => ':attribute mora imati tačno :size karaktera.',
         'array' => 'The :attribute must contain :size items.',
     ],
     'starts_with' =>

@@ -43,4 +43,9 @@ class KorisnikService
             $sifra
         );
     }
+
+    public function detaljiLogovanogKorisnika()
+    {
+        return $this->_korisnikRepository->detaljiKorisnika(auth()->user()->id);
+    }
 }

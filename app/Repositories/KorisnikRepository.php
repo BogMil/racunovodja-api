@@ -66,4 +66,12 @@ class KorisnikRepository
             ->Where('sifra', $sifra)
             ->count() > 0;
     }
+
+    public function detaljiKorisnika($idKorisnika)
+    {
+        return DetaljiKorisnika::where(
+            'id_korisnika',
+            $idKorisnika
+        )->firstOrFail();
+    }
 }

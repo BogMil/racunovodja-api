@@ -63,23 +63,15 @@ class Controller extends BaseController
             $m = $m . $e->getMessage() . "\n";
 
             Log::critical($m);
-            return response()->json(new Error(DefaultValues::SISTEMSKA_GRESKA));
+            return response()->json(DefaultValues::SISTEMSKA_GRESKA, 400);
         } catch (\Exception $ex) {
             Log::critical($e->getMessage());
-            return response()->json(new Error(DefaultValues::SISTEMSKA_GRESKA));
+            return response()->json(DefaultValues::SISTEMSKA_GRESKA, 400);
         }
     }
 
     protected function failWithValidationErrors($errors)
     {
-        // $errorMessages = [];
-        // foreach ($errors->getMessages() as $message) {
-        //     $errorMessages = array_merge(
-        //         $errorMessages,
-        //         array_values($message)
-        //     );
-        // }
-
         $errors = [
             'errors' => $errors,
         ];

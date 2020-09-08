@@ -69,4 +69,22 @@ class ZaposleniService
             $sifra
         );
     }
+
+    public function nedostajuciJmbgoviLogovanogKorisnika($jmbgs)
+    {
+        $postojeciJmbgovi = $this->_zaposleniRepository->getJmbgoveZaposlenihKorisnika(
+            auth()->user()->id
+        );
+
+        $nedostajuci = [];
+
+        foreach ($jmbgs as $maybeNew) {
+            if (in_array($maybeNew, $postojeciJmbgovi)) {
+                continue;
+            }
+            array_push($nedostajuci, $maybeNew);
+        }
+
+        return $nedostajuci;
+    }
 }

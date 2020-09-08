@@ -63,7 +63,7 @@ class UpdateTest extends TestCase
         $this->assertEquals($zaposleni->sifra, "nova");
         $this->assertEquals($zaposleni->jmbg, "0000000000000");
         $this->assertEquals($zaposleni->aktivan, 0);
-        $this->assertEquals($zaposleni->id_opstine, 2);
+        $this->assertEquals($zaposleni->id_opstine, '2');
     }
 
     /** @test */

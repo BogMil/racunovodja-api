@@ -61,4 +61,11 @@ class ZaposlenRepository
             ->where('sifra', $sifra)
             ->get();
     }
+
+    public function getJmbgoveZaposlenihKorisnika($idKorisnika)
+    {
+        return Zaposleni::where('id_korisnika', $idKorisnika)
+            ->pluck('jmbg')
+            ->toArray();
+    }
 }

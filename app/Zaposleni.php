@@ -11,6 +11,6 @@ class Zaposleni extends Model
 
     public function opstina()
     {
-        return $this->belongsTo('App\Opstina', 'id_korisnika');
+        return $this->belongsTo('App\Opstina', 'id_opstine');
     }
 }

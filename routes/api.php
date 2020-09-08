@@ -37,7 +37,29 @@ Route::group(
 
 Route::get('opstina', 'App\Http\Controllers\OpstinaController@index');
 
-Route::resource('zaposleni', 'App\Http\Controllers\ZaposleniController');
+// ZAPOSLENI
+Route::post(
+    'zaposleni/izdvojNedostajuceJmbgove',
+    'App\Http\Controllers\ZaposleniController@izdvojNedostajuceJmbgove'
+);
+Route::get('zaposleni', 'App\Http\Controllers\ZaposleniController@index');
+Route::post('zaposleni', 'App\Http\Controllers\ZaposleniController@store');
+Route::put('zaposleni/{id}', 'App\Http\Controllers\ZaposleniController@update');
+Route::delete(
+    'zaposleni/{id}',
+    'App\Http\Controllers\ZaposleniController@destroy'
+);
+// KORISNIK
+
+Route::get(
+    'korisnik/detalji',
+    'App\Http\Controllers\KorisnikController@detalji'
+);
+Route::put(
+    'korisnik/detalji',
+    'App\Http\Controllers\KorisnikController@detalji'
+);
+
 //////
 Route::get(
     'employee/{id}/availableRelations',
