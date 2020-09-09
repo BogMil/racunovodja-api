@@ -37,11 +37,11 @@ class Controller extends BaseController
     protected function errorResponse($message, $e)
     {
         try {
-            $m = "-----------USER-----------\n";
+            $m = "USER : ";
             $m = $m . auth()->user()->email . "\n";
-            $m = $m . "-----------USER ERROR-----------\n";
+            $m = $m . "USER ERROR : ";
             $m = $m . $message . "\n";
-            $m = $m . "-----------EXCEPTION-----------\n";
+            $m = $m . "EXCEPTION : ";
             $m = $m . $e->getMessage() . "\n";
 
             Log::critical($m);
@@ -55,11 +55,11 @@ class Controller extends BaseController
     protected function systemErrorResponse($e)
     {
         try {
-            $m = "-----------USER-----------\n";
+            $m = "USER : ";
             $m = $m . auth()->user()->email . "\n";
-            $m = $m . "-----------USER ERROR-----------\n";
+            $m = $m . "USER ERROR : ";
             $m = $m . DefaultValues::SISTEMSKA_GRESKA . "\n";
-            $m = $m . "-----------EXCEPTION-----------\n";
+            $m = $m . "EXCEPTION : ";
             $m = $m . $e->getMessage() . "\n";
 
             Log::critical($m);
