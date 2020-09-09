@@ -57,7 +57,7 @@ Route::get(
 );
 Route::put(
     'korisnik/detalji',
-    'App\Http\Controllers\KorisnikController@detalji'
+    'App\Http\Controllers\KorisnikController@azurirajDetalje'
 );
 
 //////

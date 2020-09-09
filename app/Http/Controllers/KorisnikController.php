@@ -24,4 +24,16 @@ class KorisnikController extends Controller
             return $this->systemErrorResponse($e);
         }
     }
+
+    public function azurirajDetalje(Request $request)
+    {
+        try {
+            $this->_korisnikService->azurirajDetaljeLogovanogKorisnika(
+                $request->all()
+            );
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->systemErrorResponse($e);
+        }
+    }
 }

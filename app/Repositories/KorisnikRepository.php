@@ -74,4 +74,11 @@ class KorisnikRepository
             $idKorisnika
         )->firstOrFail();
     }
+
+    public function azurirajDetaljeKorisnika($idKorisnika, $data)
+    {
+        $detalji = Korisnik::where('id', $idKorisnika)->firstOrFail()->detalji;
+
+        dd($detalji);
+    }
 }

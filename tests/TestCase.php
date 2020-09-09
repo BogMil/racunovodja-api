@@ -56,6 +56,8 @@ abstract class TestCase extends BaseTestCase
                 return $this->get($url, $data);
             case "post":
                 return $this->post($url, $data);
+            case "put":
+                return $this->put($url, $data);
 
             default:
                 throw new Exception("Unkown http method");

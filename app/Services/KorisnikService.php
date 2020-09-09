@@ -48,4 +48,12 @@ class KorisnikService
     {
         return $this->_korisnikRepository->detaljiKorisnika(auth()->user()->id);
     }
+
+    public function azurirajDetaljeLogovanogKorisnika($data)
+    {
+        return $this->_korisnikRepository->azurirajDetaljeKorisnika(
+            auth()->user()->id,
+            $data
+        );
+    }
 }

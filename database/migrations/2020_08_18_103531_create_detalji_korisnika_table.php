@@ -34,6 +34,9 @@ class CreateDetaljiKorisnikaTable extends Migration
                 ->nullable()
                 ->default(null);
             $table->string('sifra_skole')->default('');
+            $table->string('naziv_skole')->default('');
+            $table->string('mesto')->default('');
+            $table->string('ulica_i_broj')->default('');
         });
     }
 
