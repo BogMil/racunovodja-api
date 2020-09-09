@@ -42,12 +42,20 @@ Route::post(
     'zaposleni/izdvojNedostajuceJmbgove',
     'App\Http\Controllers\ZaposleniController@izdvojNedostajuceJmbgove'
 );
+Route::post(
+    'zaposleni/izdvojNedostajuceSifre',
+    'App\Http\Controllers\ZaposleniController@izdvojNedostajuceSifre'
+);
 Route::get('zaposleni', 'App\Http\Controllers\ZaposleniController@index');
 Route::post('zaposleni', 'App\Http\Controllers\ZaposleniController@store');
 Route::put('zaposleni/{id}', 'App\Http\Controllers\ZaposleniController@update');
 Route::delete(
     'zaposleni/{id}',
     'App\Http\Controllers\ZaposleniController@destroy'
+);
+Route::post(
+    'zaposleni/{jmbg}/azurirajEmail',
+    'App\Http\Controllers\ZaposleniController@azurirajEmail'
 );
 // KORISNIK
 
@@ -60,7 +68,13 @@ Route::put(
     'App\Http\Controllers\KorisnikController@azurirajDetalje'
 );
 
-//////
+//SLANJE MAILA LOG
+
+Route::post(
+    'slanjeMailova/log',
+    'App\Http\Controllers\SlanjeMailaController@log'
+);
+//////////////////////////////////////////////////////////////
 Route::get(
     'employee/{id}/availableRelations',
     'App\Employee\EmployeeController@availableRelations'
@@ -153,8 +167,3 @@ Route::post(
 
 Route::get('userDetails', 'App\UserDetails\UserDetailsController@index');
 Route::put('userDetails', 'App\UserDetails\UserDetailsController@update');
-
-Route::post(
-    'slanjeMailova/log',
-    'App\SlanjeMailovaLog\SlanjeMailovaLogController@log'
-);

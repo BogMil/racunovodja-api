@@ -20,8 +20,8 @@ class CreateSlanjeMailaLogTable extends Migration
             $table->string('subject');
             $table->string('vrsta');
             $table->boolean('uspesno');
-            $table->boolean('greska');
-            $table->boolean('naziv_skole_iz_fajla');
+            $table->string('greska')->nullable();
+            $table->string('naziv_skole_iz_fajla');
         });
     }
 

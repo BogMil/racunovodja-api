@@ -69,16 +69,29 @@ class KorisnikRepository
 
     public function detaljiKorisnika($idKorisnika)
     {
-        return DetaljiKorisnika::where(
-            'id_korisnika',
-            $idKorisnika
-        )->firstOrFail();
+        return DetaljiKorisnika::with('opstina')
+            ->where('id_korisnika', $idKorisnika)
+            ->firstOrFail();
     }
 
     public function azurirajDetaljeKorisnika($idKorisnika, $data)
     {
-        $detalji = Korisnik::where('id', $idKorisnika)->firstOrFail()->detalji;
+        $detalji = DetaljiKorisnika::where(
+            'id_korisnika',
+            $idKorisnika
+        )->firstOrFail();
 
-        dd($detalji);
+        $detalji->poreski_identifikacioni_broj =
+            $data['poreski_identifikacioni_broj'] ?? '';
+        $detalji->maticni_broj = $data['maticni_broj'] ?? '';
+        $detalji->id_opstine = $data['id_opstine'];
+        $detalji->bankovni_racun = $data['bankovni_racun'] ?? '';
+        $detalji->tip_skole = $data['tip_skole'];
+        $detalji->sifra_skole = $data['sifra_skole'] ?? '';
+        $detalji->naziv_skole = $data['naziv_skole'] ?? '';
+        $detalji->mesto = $data['mesto'] ?? '';
+        $detalji->ulica_i_broj = $data['ulica_i_broj'] ?? '';
+        $detalji->telefon = $data['telefon'] ?? '';
+        $detalji->save();
     }
 }

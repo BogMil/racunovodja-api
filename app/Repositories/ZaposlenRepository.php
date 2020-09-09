@@ -68,4 +68,24 @@ class ZaposlenRepository
             ->pluck('jmbg')
             ->toArray();
     }
+
+    public function getSifreZaposlenihKorisnika($idKorisnika)
+    {
+        return Zaposleni::where('id_korisnika', $idKorisnika)
+            ->pluck('sifra')
+            ->toArray();
+    }
+
+    public function azurirajEmailZaposlenogKojiRadiZaLogovanogKorisnika(
+        $jmbg,
+        $email,
+        $idKorisnika
+    ) {
+        $zaposleni = Zaposleni::where('id_korisnika', $idKorisnika)
+            ->where('jmbg', $jmbg)
+            ->firstOrFail();
+
+        $zaposleni->email = $email;
+        $zaposleni->save();
+    }
 }

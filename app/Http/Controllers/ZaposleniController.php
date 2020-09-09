@@ -112,4 +112,31 @@ class ZaposleniController extends Controller
             return $this->systemErrorResponse($e);
         }
     }
+
+    public function izdvojNedostajuceSifre(Request $request)
+    {
+        try {
+            $sifre = $request['sifre'];
+            $nedostajuce = $this->_zaposleniService->nedostajuceSifreLogovanogKorisnika(
+                $sifre
+            );
+
+            return $this->successfullResponse($nedostajuce);
+        } catch (\Exception $e) {
+            return $this->systemErrorResponse($e);
+        }
+    }
+
+    public function azurirajEmail(Request $request, $jmbg)
+    {
+        try {
+            $this->_zaposleniService->azurirajEmailZaposlenog(
+                $jmbg,
+                $request['email']
+            );
+            return $this->successfullResponse();
+        } catch (\Exception $e) {
+            return $this->systemErrorResponse($e);
+        }
+    }
 }

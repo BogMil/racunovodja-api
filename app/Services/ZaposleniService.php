@@ -87,4 +87,31 @@ class ZaposleniService
 
         return $nedostajuci;
     }
+
+    public function nedostajuceSifreLogovanogKorisnika($sifre)
+    {
+        $postojeceSifre = $this->_zaposleniRepository->getSifreZaposlenihKorisnika(
+            auth()->user()->id
+        );
+
+        $nedostajuce = [];
+
+        foreach ($sifre as $maybeNew) {
+            if (in_array($maybeNew, $postojeceSifre)) {
+                continue;
+            }
+            array_push($nedostajuce, $maybeNew);
+        }
+
+        return $nedostajuce;
+    }
+
+    public function azurirajEmailZaposlenog($jmbg, $email)
+    {
+        $this->_zaposleniRepository->azurirajEmailZaposlenogKojiRadiZaLogovanogKorisnika(
+            $jmbg,
+            $email,
+            auth()->user()->id
+        );
+    }
 }

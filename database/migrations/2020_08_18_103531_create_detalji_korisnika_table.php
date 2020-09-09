@@ -25,7 +25,8 @@ class CreateDetaljiKorisnikaTable extends Migration
             $table
                 ->foreignId('id_opstine')
                 ->nullable()
-                ->default(null);
+                ->default(null)
+                ->on('opstine');
             $table->string('email_za_slanje')->default('');
             $table->string('password_email_za_slanje')->default('');
             $table->string('bankovni_racun')->default('');
@@ -37,6 +38,7 @@ class CreateDetaljiKorisnikaTable extends Migration
             $table->string('naziv_skole')->default('');
             $table->string('mesto')->default('');
             $table->string('ulica_i_broj')->default('');
+            $table->string('telefon')->default('');
         });
     }
 

@@ -1,10 +1,6 @@
 <?php
 
 namespace App\Validators;
-
-use App\Constants\DataValidationErrorMessages;
-use App\Services\KorisnikService;
-use App\Services\ZaposleniService;
 use Illuminate\Support\Facades\Validator;
 
 class KorisnikValidator
@@ -12,37 +8,18 @@ class KorisnikValidator
     public function zaAzuriranjeDetalja($data)
     {
         return Validator::make($data, [
-            'ime' => 'bail|required',
-            'prezime' => 'bail|required',
-            'id_opstine' => '',
-            'email' => 'bail|nullable|email',
-            'bankovni_racun' => 'bail|required',
-            'sifra' => [
-                'bail',
-                'required',
-                function ($attribute, $value, $fail) {
-                    if (
-                        $this->_korisnikService->vecImaZaposlenogSaSifrom(
-                            $value
-                        )
-                    ) {
-                        $fail('Zaposleni sa tom šifrom već postoji.');
-                    }
-                },
-            ],
-            'jmbg' => [
-                'bail',
-                'required',
-                'size:13',
-                function ($attribute, $value, $fail) {
-                    if (
-                        $this->_korisnikService->vecImaZaposlenogSaJmbg($value)
-                    ) {
-                        $fail('Zaposleni sa tim jmbg-om već postoji.');
-                    }
-                },
-            ],
-            'aktivan' => '',
+            'id' => [''],
+            'poreski_identifikacioni_broj' => [''],
+            'maticni_broj' => [''],
+            'id_korisnika' => ['bail', 'required'],
+            'id_opstine' => [''],
+            'bankovni_racun' => [''],
+            'tip_skole' => [''],
+            'sifra_skole' => [''],
+            'naziv_skole' => [''],
+            'mesto' => [''],
+            'ulica_i_broj' => [''],
+            'telefon' => [''],
         ]);
     }
 }
