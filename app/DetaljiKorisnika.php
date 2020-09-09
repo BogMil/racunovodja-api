@@ -12,6 +12,6 @@ class DetaljiKorisnika extends Model
 
     public function opstina()
     {
-        return $this->hasOne('App\Opstina', 'id_opstine');
+        return $this->belongsTo('App\Opstina', 'id_opstine');
     }
 }
