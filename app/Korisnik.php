@@ -35,7 +35,12 @@ class Korisnik extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        return [
+            'prava_pristupa' => [
+                'dpl' => $this->pravaPristupa->dpl,
+                'opiro' => $this->pravaPristupa->opiro,
+            ],
+        ];
     }
 
     public function username()
