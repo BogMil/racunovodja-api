@@ -2,12 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use App\Core\Responses\Fail;
-use App\Core\Responses\Error;
-use App\Core\Responses\Success;
-use App\Korisnik;
 use Illuminate\Http\Request;
 use App\Repositories\KorisnikRepository;
 use Exception;
