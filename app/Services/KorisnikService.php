@@ -60,4 +60,15 @@ class KorisnikService
             $data
         );
     }
+
+    public function trenutnoLogovani()
+    {
+        $korisnik = $this->_korisnikRepository->osnovniPodaciKorisnika(
+            auth()->user()->id
+        );
+
+        unset($korisnik->password);
+
+        return $korisnik;
+    }
 }

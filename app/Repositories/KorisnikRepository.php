@@ -69,6 +69,13 @@ class KorisnikRepository
             ->count() > 0;
     }
 
+    public function osnovniPodaciKorisnika($idKorisnika)
+    {
+        return Korisnik::with('pravaPristupa')
+            ->where('id', $idKorisnika)
+            ->firstOrFail();
+    }
+
     public function detaljiKorisnika($idKorisnika)
     {
         return DetaljiKorisnika::with('opstina')
