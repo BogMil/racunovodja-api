@@ -6,6 +6,7 @@ use App\Constants\DefaultValues;
 use App\DetaljiKorisnika;
 use App\Korisnik;
 use App\LokacijaSkole;
+use App\PravaPristupa;
 use App\Zaposleni;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,7 @@ class KorisnikRepository
                 'naziv' => DefaultValues::PODRAZUMEVANA_LOKACIJA_SKOLE,
             ])
         );
+        $korisnik->pravaPristupa()->save(new PravaPristupa());
     }
 
     public function vecImaZaposlenogSaJmbg($jmbg)
