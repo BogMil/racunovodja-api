@@ -20,6 +20,10 @@ class KorisnikService
         $this->_zaposleniService = $zaposleniService;
     }
 
+    public function register($validData)
+    {
+        return $this->_korisnikRepository->register($validData);
+    }
     public function vecImaZaposlenogSaJmbg($jmbg)
     {
         return $this->_korisnikRepository->vecImaZaposlenogSaJmbg($jmbg);

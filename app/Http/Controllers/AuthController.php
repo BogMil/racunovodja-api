@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\KorisnikRepository;
+use App\Services\KorisnikService;
 use App\Validators\AuthValidator;
 use Exception;
 use Illuminate\Support\Facades\Auth;
@@ -12,15 +13,15 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    private $_korisnikRepo;
+    private $_korisnikService;
     private $_authValidator;
 
     public function __construct(
-        KorisnikRepository $korisnikRepo,
+        KorisnikService $korisnikService,
         AuthValidator $authValidator
     ) {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
-        $this->_korisnikRepo = $korisnikRepo;
+        $this->_korisnikService = $korisnikService;
         $this->_authValidator = $authValidator;
     }
 
@@ -37,7 +38,7 @@ class AuthController extends Controller
     private function tryRegister($validData)
     {
         try {
-            $this->_korisnikRepo->register($validData);
+            $this->_korisnikService->register($validData);
             return $this->successfullResponse([
                 "probni_period" => "godinu dana",
             ]);
@@ -80,8 +81,7 @@ class AuthController extends Controller
 
     public function me()
     {
-        $user = auth()->user();
-        unset($user->password);
+        $user = $this->_korisnikService->trenutnoLogovani();
 
         return $this->successfullResponse(["korisnik" => $user]);
     }
