@@ -89,6 +89,48 @@ class PrijavaTest extends TestCase
     /** @test */
     public function zaIspravneKredencijaleVracaJwt()
     {
+        $response = $this->responseIspravnogRequesta();
+
+        $response->assertOk();
+        $responseJson = $response->decodeResponseJson();
+        $this->assertArrayHasKey('jwt', $responseJson);
+    }
+
+    /** @test */
+    public function jwtSadrziPravaPristupa()
+    {
+        $response = $this->responseIspravnogRequesta();
+
+        $response->assertOk();
+        $responseJson = $response->decodeResponseJson();
+        $token = $responseJson['jwt'];
+        $tokenPauload = json_decode(
+            base64_decode(
+                str_replace(
+                    '_',
+                    '/',
+                    str_replace('-', '+', explode('.', $token)[1])
+                )
+            )
+        );
+
+        $this->objectHasAttribute('prava_pristupa', $tokenPauload);
+    }
+
+    /** @test */
+    public function jwtSadrziPravaPristupaZaTacno2DelaAplikacije()
+    {
+        $response = $this->responseIspravnogRequesta();
+        $response->assertOk();
+        $responseJson = $response->decodeResponseJson();
+        $token = $responseJson['jwt'];
+        $tokenPauload = $this->decodeJwtPayload($token);
+
+        $this->assertCount(2, get_object_vars($tokenPauload->prava_pristupa));
+    }
+
+    private function responseIspravnogRequesta()
+    {
         $this->post('api/auth/registracija', [
             'naziv' => 'Naziv skole',
             'ulica_i_broj' => 'Naziv ulice i broj',
@@ -99,13 +141,22 @@ class PrijavaTest extends TestCase
             'telefon' => '123456789',
         ]);
 
-        $response = $this->post($this->url, [
+        return $this->post($this->url, [
             'email' => 'email@adresa.com',
             'password' => 'lozinka',
         ]);
+    }
 
-        $response->assertOk();
-        $responseJson = $response->decodeResponseJson();
-        $this->assertArrayHasKey('jwt', $responseJson);
+    private function decodeJwtPayload($token)
+    {
+        return json_decode(
+            base64_decode(
+                str_replace(
+                    '_',
+                    '/',
+                    str_replace('-', '+', explode('.', $token)[1])
+                )
+            )
+        );
     }
 }

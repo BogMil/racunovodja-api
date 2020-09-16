@@ -7,6 +7,7 @@ use App\Constants\Statuses;
 use App\DetaljiKorisnika;
 use App\Korisnik;
 use App\LokacijaSkole;
+use App\PravaPristupa;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -196,5 +197,21 @@ class RegistracijaTest extends TestCase
 
         $json = $response->decodeResponseJson();
         $this->assertEquals(["probni_period" => "godinu dana"], $json);
+    }
+
+    /** @test */
+    public function pravaPristupaSeAutomatskiSeKreiraju()
+    {
+        $response = $this->post($this->url, $this->requestData);
+        $response->assertOk();
+        $this->assertEquals(1, PravaPristupa::all()->count());
+    }
+
+    /** @test */
+    public function omogucenJePristupZaSvakiDeoAplikacije()
+    {
+        $this->post($this->url, $this->requestData);
+        $this->assertEquals(true, PravaPristupa::first()->dpl);
+        $this->assertEquals(true, PravaPristupa::first()->opiro);
     }
 }
