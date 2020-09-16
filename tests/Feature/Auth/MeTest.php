@@ -43,4 +43,15 @@ class MeTest extends TestCase
         $responseJson = $response->decodeResponseJson();
         $this->assertArrayNotHasKey('password', $responseJson['korisnik']);
     }
+
+    /** @test */
+    public function vracaPravaPristupa()
+    {
+        $this->withJwt();
+
+        $response = $this->post($this->url);
+        $responseJson = $response->decodeResponseJson();
+        // dd($responseJson);
+        $this->assertArrayHasKey('prava_pristupa', $responseJson['korisnik']);
+    }
 }
