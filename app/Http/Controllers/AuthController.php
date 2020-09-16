@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Repositories\KorisnikRepository;
+use App\Validators\AuthValidator;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -12,33 +13,25 @@ use Illuminate\Support\Facades\Validator;
 class AuthController extends Controller
 {
     private $_korisnikRepo;
+    private $_authValidator;
 
-    public function __construct(KorisnikRepository $korisnikRepo)
-    {
+    public function __construct(
+        KorisnikRepository $korisnikRepo,
+        AuthValidator $authValidator
+    ) {
         $this->middleware('auth:api', ['except' => ['login', 'register']]);
         $this->_korisnikRepo = $korisnikRepo;
+        $this->_authValidator = $authValidator;
     }
 
     public function register(Request $request)
     {
-        $validator = $this->getRegisterDataValidator($request->all());
+        $validator = $this->_authValidator->zaRegister($request->all());
         if ($validator->fails()) {
             return $this->failWithValidationErrors($validator->errors());
         }
 
         return $this->tryRegister($validator->validated());
-    }
-
-    private function getRegisterDataValidator($data)
-    {
-        return Validator::make($data, [
-            'naziv' => 'bail|required',
-            'ulica_i_broj' => 'bail|required',
-            'grad' => 'bail|required',
-            'email' => 'bail|required|unique:korisnici|email',
-            'password' => 'bail|required|confirmed',
-            'telefon' => 'bail|required',
-        ]);
     }
 
     private function tryRegister($validData)
@@ -55,7 +48,7 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $validator = $this->getLoginDataValidator($request->all());
+        $validator = $this->_authValidator->zaLogin($request->all());
         if ($validator->fails()) {
             return $this->failWithValidationErrors($validator->errors());
         }
@@ -83,16 +76,6 @@ class AuthController extends Controller
         }
 
         return $token;
-    }
-
-    private function getLoginDataValidator($data)
-    {
-        $validationRules = [
-            'email' => 'bail|required|email',
-            'password' => 'bail|required',
-        ];
-
-        return Validator::make($data, $validationRules);
     }
 
     public function me()
