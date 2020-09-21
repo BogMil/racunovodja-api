@@ -74,6 +74,17 @@ Route::post(
     'slanjeMailova/log',
     'App\Http\Controllers\SlanjeMailaController@log'
 );
+
+//NOTIFIKACIJA
+Route::get(
+    'notifikacija/brojNovih',
+    'App\Http\Controllers\KorisnikController@brojNovihNotifikacija'
+);
+
+Route::get(
+    'notifikacija',
+    'App\Http\Controllers\KorisnikController@notifikacije'
+);
 //////////////////////////////////////////////////////////////
 Route::get(
     'employee/{id}/availableRelations',
