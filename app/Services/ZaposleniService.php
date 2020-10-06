@@ -106,11 +106,11 @@ class ZaposleniService
         return $nedostajuce;
     }
 
-    public function azurirajEmailZaposlenog($jmbg, $email)
+    public function azurirajEmailZaposlenog($jmbg, $email1)
     {
         $this->_zaposleniRepository->azurirajEmailZaposlenogKojiRadiZaLogovanogKorisnika(
             $jmbg,
-            $email,
+            $email1,
             auth()->user()->id
         );
     }

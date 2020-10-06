@@ -27,7 +27,8 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email@adresa.com',
+            'email2' => 'email@adresa.com',
             'sifra' => '2345',
             'jmbg' => '1231231231231',
             'aktivan' => true,
@@ -40,13 +41,14 @@ class UpdateTest extends TestCase
     public function ZaposleniMozeDaSeAzurira()
     {
         $this->kreirajPrvogKorisnikaIZaposlenog();
-
         $this->withJwt();
+
         $response = $this->put($this->url . "/1", [
             'ime' => 'Novo Ime',
             'prezime' => 'Novo Prezime',
             'bankovni_racun' => 'novi racun',
-            'email' => 'nova.email@adresa.com',
+            'email1' => 'nova.email@adresa.com',
+            'email2' => 'nova2.email@adresa.com',
             'sifra' => 'nova',
             'jmbg' => '0000000000000',
             'aktivan' => false,
@@ -59,7 +61,8 @@ class UpdateTest extends TestCase
         $this->assertEquals($zaposleni->ime, "Novo Ime");
         $this->assertEquals($zaposleni->prezime, "Novo Prezime");
         $this->assertEquals($zaposleni->bankovni_racun, "novi racun");
-        $this->assertEquals($zaposleni->email, "nova.email@adresa.com");
+        $this->assertEquals($zaposleni->email1, "nova.email@adresa.com");
+        $this->assertEquals($zaposleni->email2, "nova2.email@adresa.com");
         $this->assertEquals($zaposleni->sifra, "nova");
         $this->assertEquals($zaposleni->jmbg, "0000000000000");
         $this->assertEquals($zaposleni->aktivan, 0);
@@ -126,19 +129,35 @@ class UpdateTest extends TestCase
     }
 
     /** @test */
-    public function emailNijeObaveznoPolje()
+    public function email1NijeObaveznoPolje()
     {
-        $this->poljeNijeObavezno('email');
+        $this->poljeNijeObavezno('email1');
     }
 
     /** @test */
-    public function emailMoraBitiValidan()
+    public function email1MoraBitiValidan()
     {
         $this->withJwt();
         $this->kreirajPrvogKorisnikaIZaposlenog();
 
-        $this->updateData['email'] = 'nevalidan format email-a';
-        TestUtils::assertFieldIsEmail('email', $this->getResponseCallback());
+        $this->updateData['email1'] = 'nevalidan format email-a';
+        TestUtils::assertFieldIsEmail('email1', $this->getResponseCallback());
+    }
+
+    /** @test */
+    public function email2NijeObaveznoPolje()
+    {
+        $this->poljeNijeObavezno('email2');
+    }
+
+    /** @test */
+    public function email2MoraBitiValidan()
+    {
+        $this->withJwt();
+        $this->kreirajPrvogKorisnikaIZaposlenog();
+
+        $this->updateData['email2'] = 'nevalidan format email-a';
+        TestUtils::assertFieldIsEmail('email2', $this->getResponseCallback());
     }
 
     /** @test */
@@ -149,7 +168,8 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email@adresa.com',
+
             'sifra' => '1111',
             'jmbg' => '1111111111111',
             'id_opstine' => '1',
@@ -161,7 +181,7 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email2' => 'email@adresa.com',
             'sifra' => '222',
             'jmbg' => '2222222222222',
             'id_opstine' => '1',
@@ -173,7 +193,7 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email@adresa.com',
             'sifra' => '1111',
             'jmbg' => '2222222222222',
             'id_opstine' => '1',
@@ -195,7 +215,7 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email@adresa.com',
             'sifra' => '1111',
             'jmbg' => '1111111111111',
             'id_opstine' => '1',
@@ -207,7 +227,7 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email2' => 'email@adresa.com',
             'sifra' => '222',
             'jmbg' => '2222222222222',
             'id_opstine' => '1',
@@ -219,7 +239,7 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email@adresa.com',
             'sifra' => '222',
             'jmbg' => '1111111111111',
             'id_opstine' => '1',
@@ -249,7 +269,8 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email1@adresa.com',
+            'email2' => 'email2@adresa.com',
             'sifra' => '2345',
             'jmbg' => '1231231231231',
             'id_opstine' => '1',
@@ -274,7 +295,8 @@ class UpdateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email1@adresa.com',
+            'email2' => 'email2@adresa.com',
             'sifra' => '2345',
             'jmbg' => '1231231231231',
             'id_opstine' => '1',

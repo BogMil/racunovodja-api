@@ -22,7 +22,7 @@ class CreateTest extends TestCase
             'ime' => 'Petar',
             'prezime' => 'Peric',
             'bankovni_racun' => '123456789',
-            'email' => 'email@adresa.com',
+            'email1' => 'email@adresa.com',
             'sifra' => '2345',
             'jmbg' => '1231231231231',
             'id_opstine' => '1',
@@ -105,21 +105,40 @@ class CreateTest extends TestCase
     }
 
     /** @test */
-    public function emailNijeObaveznoPolje()
+    public function email1NijeObaveznoPolje()
     {
-        $this->poljeNijeObavezno('email');
+        $this->poljeNijeObavezno('email1');
     }
 
     /** @test */
-    public function emailMoraBitiValidan()
+    public function email1MoraBitiValidan()
     {
         $this->withJwt();
         $getResponse = function () {
-            $this->requestData['email'] = 'nevalidan format email-a';
+            $this->requestData['email1'] = 'nevalidan format email-a';
             return $this->post($this->url, $this->requestData);
         };
 
-        TestUtils::assertFieldIsEmail('email', $getResponse);
+        TestUtils::assertFieldIsEmail('email1', $getResponse);
+        $this->assertCount(0, Zaposleni::all());
+    }
+
+    /** @test */
+    public function email2NijeObaveznoPolje()
+    {
+        $this->poljeNijeObavezno('email2');
+    }
+
+    /** @test */
+    public function email2MoraBitiValidan()
+    {
+        $this->withJwt();
+        $getResponse = function () {
+            $this->requestData['email2'] = 'nevalidan format email-a';
+            return $this->post($this->url, $this->requestData);
+        };
+
+        TestUtils::assertFieldIsEmail('email2', $getResponse);
         $this->assertCount(0, Zaposleni::all());
     }
 

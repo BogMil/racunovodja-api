@@ -132,7 +132,7 @@ class ZaposleniController extends Controller
         try {
             $this->_zaposleniService->azurirajEmailZaposlenog(
                 $jmbg,
-                $request['email']
+                $request['email1']
             );
             return $this->successfullResponse();
         } catch (\Exception $e) {

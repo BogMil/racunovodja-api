@@ -26,7 +26,8 @@ class ZaposleniValidator
             'ime' => 'bail|required',
             'prezime' => 'bail|required',
             'id_opstine' => '',
-            'email' => 'bail|nullable|email',
+            'email1' => 'bail|nullable|email',
+            'email2' => 'bail|nullable|email',
             'bankovni_racun' => 'bail|required',
             'sifra' => [
                 'bail',
@@ -63,7 +64,8 @@ class ZaposleniValidator
             'ime' => 'bail|required',
             'prezime' => 'bail|required',
             'id_opstine' => '',
-            'email' => 'bail|nullable|email',
+            'email1' => 'bail|nullable|email',
+            'email2' => 'bail|nullable|email',
             'bankovni_racun' => 'bail|required',
             'sifra' => [
                 'bail',

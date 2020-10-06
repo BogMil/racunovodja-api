@@ -35,7 +35,8 @@ class ZaposlenRepository
         $employee['ime'] = $data['ime'];
         $employee['prezime'] = $data['prezime'];
         $employee['bankovni_racun'] = $data['bankovni_racun'];
-        $employee['email'] = $data['email'];
+        $employee['email1'] = $data['email1'];
+        $employee['email2'] = $data['email2'];
         $employee['sifra'] = $data['sifra'];
         $employee['jmbg'] = $data['jmbg'];
         $employee['aktivan'] = $data['aktivan'];
@@ -78,14 +79,14 @@ class ZaposlenRepository
 
     public function azurirajEmailZaposlenogKojiRadiZaLogovanogKorisnika(
         $jmbg,
-        $email,
+        $email1,
         $idKorisnika
     ) {
         $zaposleni = Zaposleni::where('id_korisnika', $idKorisnika)
             ->where('jmbg', $jmbg)
             ->firstOrFail();
 
-        $zaposleni->email = $email;
+        $zaposleni->email1 = $email1;
         $zaposleni->save();
     }
 }
