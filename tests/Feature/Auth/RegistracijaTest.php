@@ -208,10 +208,10 @@ class RegistracijaTest extends TestCase
     }
 
     /** @test */
-    public function omogucenJePristupZaSvakiDeoAplikacije()
+    public function omogucenJePristupZaDplDeoAplikacije()
     {
         $this->post($this->url, $this->requestData);
         $this->assertEquals(true, PravaPristupa::first()->dpl);
-        $this->assertEquals(true, PravaPristupa::first()->opiro);
+        $this->assertEquals(false, PravaPristupa::first()->opiro);
     }
 }

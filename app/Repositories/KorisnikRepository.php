@@ -52,7 +52,9 @@ class KorisnikRepository
                 'naziv' => DefaultValues::PODRAZUMEVANA_LOKACIJA_SKOLE,
             ])
         );
-        $korisnik->pravaPristupa()->save(new PravaPristupa());
+        $pravaPristupa = new PravaPristupa();
+        $pravaPristupa->opiro = false;
+        $korisnik->pravaPristupa()->save($pravaPristupa);
     }
 
     public function vecImaZaposlenogSaJmbg($jmbg)
