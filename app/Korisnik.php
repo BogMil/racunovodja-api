@@ -2,6 +2,7 @@
 
 namespace App;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Model;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -40,11 +41,13 @@ class Korisnik extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
+        $date = DateTime::createFromFormat('Y-m-d', $this->validan_do);
         return [
             'prava_pristupa' => [
                 'dpl' => $this->pravaPristupa->dpl,
                 'opiro' => $this->pravaPristupa->opiro,
             ],
+            'exp' => $date->getTimestamp(),
         ];
     }
 

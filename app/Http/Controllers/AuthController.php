@@ -10,6 +10,7 @@ use App\Validators\AuthValidator;
 use Exception;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 
 class AuthController extends Controller
 {
@@ -64,7 +65,10 @@ class AuthController extends Controller
             return $this->respondWithToken($token);
         } catch (WrongCredentialsException $e) {
             return $this->failWithErrors(["greska" => "Pogrešni kredencijali"]);
+        } catch (TokenExpiredException $e) {
+            return $this->failWithErrors(["greska" => "Licenca je istekla"]);
         } catch (\Exception $e) {
+            dd($e);
             return $this->systemErrorResponse($e);
         }
     }
