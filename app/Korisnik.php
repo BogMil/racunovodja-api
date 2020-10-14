@@ -41,7 +41,7 @@ class Korisnik extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        $date = DateTime::createFromFormat('Y-m-d', $this->validan_do);
+        $date = new DateTime($this->validan_do);
         return [
             'prava_pristupa' => [
                 'dpl' => $this->pravaPristupa->dpl,
