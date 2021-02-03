@@ -41,7 +41,7 @@ class AuthController extends Controller
         try {
             $this->_korisnikService->register($validData);
             return $this->successfullResponse([
-                "probni_period" => "godinu dana",
+                "probni_period" => "2 meseca",
             ]);
         } catch (\Exception $e) {
             return $this->systemErrorResponse($e);
