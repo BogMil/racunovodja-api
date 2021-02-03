@@ -22,7 +22,7 @@ class CreateSlanjeMailaLogTable extends Migration
             $table->boolean('uspesno');
             $table->string('greska')->nullable();
             $table->string('naziv_skole_iz_fajla');
-            $table->mediumText('rezultat_slanja');
+            $table->mediumText('rezultat_slanja')->nullable();
         });
     }
 
