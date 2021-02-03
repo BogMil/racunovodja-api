@@ -75,6 +75,16 @@ Route::post(
     'App\Http\Controllers\SlanjeMailaController@log'
 );
 
+Route::get(
+    'slanjeMailova/log/{slanjeMailaLog}',
+    'App\Http\Controllers\SlanjeMailaController@getLog'
+);
+
+Route::get(
+    'slanjeMailova/logs',
+    'App\Http\Controllers\SlanjeMailaController@getLogs'
+);
+
 //NOTIFIKACIJA
 Route::get(
     'notifikacija/brojNovih',
