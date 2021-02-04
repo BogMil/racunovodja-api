@@ -39,7 +39,7 @@ class KorisnikRepository
     private function izracunajKrajnjiDatumProbnogPerioda()
     {
         return Carbon::now()
-            ->addYears(1)
+            ->addMonths(2)
             ->addDays(1)
             ->format('Y-m-d h:i:s');
     }
