@@ -47,6 +47,7 @@ class SlanjeMailaController extends Controller
                 'id'
             )
                 ->where('email_korisnika', auth()->user()->email)
+                ->whereNotNull('rezultat_slanja')
                 ->orderBy('created_at', 'desc')
                 ->get();
 
